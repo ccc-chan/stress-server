@@ -2,7 +2,7 @@
 # coding: utf-8
 
 
-from numpy import *
+from numpy import sqrt, pi, exp, log, array, linspace
 from scipy import integrate
 from scipy import stats
 import pandas as pd
