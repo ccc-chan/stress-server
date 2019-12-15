@@ -4,7 +4,7 @@
 #Note: all s0 and T here corresponds to st and t
 
 from math import log, exp, erf, pi, sin
-from price import optionPricingFormulas as opf
+import optionPricingFormulas as opf
 
 def call(s0, k, v, r, T, q = 0):#欧式看涨
     return opf.call(k/s0, v, r, T, q) * s0

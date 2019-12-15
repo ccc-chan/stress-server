@@ -10,7 +10,7 @@ import pandas as pd
 
 from datetime import datetime, timedelta
 
-from price import pricingModel as pm
+import pricingModel as pm
 
 def setT(data, today):
     T_tmp = []
@@ -52,7 +52,10 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
         deltaExposure = quantity * delta_tmp * st
         if data["类型"][indexToFind] == "BCALL":
             limit = data.loc[indexToFind, "Digital amount"]
-            limit = float(limit[:-1]) / 100
+            if limit is not None:
+                limit = float(limit[:-1]) / 100
+            else:
+                limit = 1
             deltaExposure = deltaExposure * data["startingPrice"][indexToFind] * limit
     else:
         deltaExposure = None
@@ -61,7 +64,10 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
         gammaExposure = quantity * gamma_tmp * st**2
         if data["类型"][indexToFind] == "BCALL":
             limit = data.loc[indexToFind, "Digital amount"]
-            limit = float(limit[:-1]) / 100
+            if limit is not None:
+                limit = float(limit[:-1]) / 100
+            else:
+                limit = 1
             gammaExposure = gammaExposure * data["startingPrice"][indexToFind] * limit
     else:
         gammaExposure = None
@@ -70,7 +76,10 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
         vegaExposure = quantity * vega_tmp
         if data["类型"][indexToFind] == "BCALL":
             limit = data.loc[indexToFind, "Digital amount"]
-            limit = float(limit[:-1]) / 100
+            if limit is not None:
+                limit = float(limit[:-1]) / 100
+            else:
+                limit = 1
             vegaExposure = vegaExposure * data["startingPrice"][indexToFind] * limit
     else:
         vegaExposure = None
@@ -79,7 +88,10 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
         thetaExposure = quantity * theta_tmp / 365
         if data["类型"][indexToFind] == "BCALL":
             limit = data.loc[indexToFind, "Digital amount"]
-            limit = float(limit[:-1]) / 100
+            if limit is not None:
+                limit = float(limit[:-1]) / 100
+            else:
+                limit = 1
             thetaExposure = thetaExposure * data["startingPrice"][indexToFind] * limit
     else:
         thetaExposure = None
@@ -166,6 +178,15 @@ def sumUpEachList(dataExport):
             thetaSum = thetaSum + theta_tmpSet[i]
  
     return [None, priceSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, vegaExposureSum, vegaSum, thetaExposureSum, thetaSum]
+
+def computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
+    if s0_tmp is not None and k_tmp is not None and sigma is not None and T_tmp is not None:
+        if s0_tmp > 0 and k_tmp > 0 and sigma > 0 and T_tmp > 0:
+            return True
+        else:
+            return False
+    else:
+        return False
 
 
 

@@ -8,8 +8,9 @@ from scipy import stats
 import pandas as pd
 from datetime import timedelta
 
-from price import optionPricingFormulas2 as opf2
-from price import optionGreeksFormulas as ogf
+import optionPricingFormulas2 as opf2
+import optionGreeksFormulas as ogf
+import others as others
 
 
 def computeCallData(vcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
@@ -24,7 +25,7 @@ def computeCallData(vcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShoc
         k_tmp = k_tmp / s0_tmp
         s0_tmp = 1.0
      
-    if sigma is not None and s0_tmp is not None:
+    if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
         price_tmp = (opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp) * a)
         delta_tmp = (ogf.callDelta(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
         #gamma affected by s0IsOne?
@@ -56,7 +57,7 @@ def computePutData(vputData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
         k_tmp = k_tmp / s0_tmp
         s0_tmp = 1.0
         
-    if sigma is not None and s0_tmp is not None:
+    if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
         price_tmp = (opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp) * a)
         delta_tmp = (ogf.putDelta(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
         gamma_tmp = (ogf.putGamma(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
@@ -75,7 +76,8 @@ def computePutData(vputData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
 
 
 def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, sigma, amplifier, limit = bcallData.loc[i, ["k", "s0", "T", "sigma", "合同参与率", "Digital amount"]]
+    k_tmp, s0_tmp, T_tmp, sigma, amplifier, limit = bcallData.loc[i, ["k", "s0", "T", "sigma", "合同参与率", 
+                                                                    "Digital amount"]]
     sigma = sigma * sigmaShock
     s0_tmp = s0_tmp * s0Shock
     limit = float(limit[:-1]) / 100
@@ -87,7 +89,7 @@ def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaSho
         k_tmp = k_tmp / s0_tmp
         s0_tmp = 1.0
         
-    if sigma is not None and s0_tmp is not None:
+    if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
         price_tmp = (opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp) * a * limit)
         delta_tmp = (ogf.binaryCallDelta(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
 
@@ -128,7 +130,7 @@ def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         rebate_tmp = rebate_tmp / s0_tmp
         s0_tmp = 1.0
     
-    if sigma is not None and s0_tmp is not None:
+    if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
         price_tmp = (opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a)
         #Note: uoc(rebate * s0 / s0) * s0
 
@@ -174,7 +176,7 @@ def computeDOPData(dopData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         rebate_tmp = rebate_tmp / s0_tmp
         s0_tmp = 1.0
     
-    if sigma is not None and s0_tmp is not None:
+    if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
         price_tmp = (opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a)
 
         p_tmp = opf2.dop(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
@@ -222,7 +224,7 @@ def computeDBCData(dbcData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         rebate_tmp = rebate_tmp / s0_tmp
         s0_tmp = 1.0
     
-    if sigma is not None and s0_tmp is not None:
+    if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
         price_tmp = (opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a)
 
         p_tmp = opf2.dboc(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
@@ -271,7 +273,7 @@ def computeDBPData(dbpData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         rebate_tmp = rebate_tmp / s0_tmp
         s0_tmp = 1.0
         
-    if sigma is not None and s0_tmp is not None:
+    if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
         price_tmp = (opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a)
 
         p_tmp = opf2.dbop(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a

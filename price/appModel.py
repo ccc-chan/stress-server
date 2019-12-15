@@ -9,16 +9,16 @@ import pandas as pd
 
 from datetime import datetime, timedelta
 
-from price import pricingModel as pm
-from price import others as others
-from price import riskFreeRate as rate
+import pricingModel as pm
+import others as others
+import riskFreeRate as rate
 
 
 def readData():
-    sigmaData = pd.read_excel("E:\stress-server\price\sigmaData.xls")
+    sigmaData = pd.read_excel("sigmaData.xls")
     sigmaData = sigmaData.where(sigmaData.notnull(), None)
     defaultSigma = None
-    defaultTodayPrice = None ###########
+    defaultTodayPrice = None
     defaultQuantity = None
     
     sigmaDic = {}
@@ -45,7 +45,7 @@ def readData():
                 quantityDic[sigmaData["Unnamed: 1"][i].split()[-1]] = defaultQuantity
 
 
-    data = pd.read_excel("E:\stress-server\price\historyData.xls")
+    data = pd.read_excel("historyData.xls")
     data = data.where(data.notnull(), None)
     data.drop([0], axis = 0, inplace = True) #inplace means data = data.changed
     data.reset_index(drop = True, inplace = True)
@@ -96,11 +96,16 @@ def readData():
             buySet.append(False)
     data["buy"] = buySet
     
-    data["price"] = None
-    data["delta"] = None
-    data["gamma"] = None
-    data["vega"] = None
-    data["theta"] = None  #up to here, None only, no "None"
+    data["Price"] = None  #The data can be stored here later
+    data["Delta"] = None
+    data["Delta_Pct"] = None
+    data["Gamma"] = None
+    data["Gamma_Pct"] = None
+    data["Theta"] = None  
+    data["Theta_Pct"] = None
+    data["Vega"] = None
+    data["Vega_Pct"] = None
+     #up to here, None only, no "None"
     return data
 
 def getData(data, idToFind, ratePoints, s0Shock, sigmaShock):
@@ -183,63 +188,61 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
     return [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet]
 
 def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
-    if printType == "Price":
-        indexChosen = 1
-    elif printType == "Delta":
-        indexChosen = 2
-    elif printType == "Delta_Pct":
-        indexChosen = 3
-    elif printType == "Gamma":
-        indexChosen = 4
-    elif printType == "Gamma_Pct":
-        indexChosen = 5
-    elif printType == "Vega":
-        indexChosen = 6
-    elif printType == "Vega_Pct":
-        indexChosen = 7
-    elif printType == "Theta":
-        indexChosen = 8
-    elif printType == "Theta_Pct":
-        indexChosen = 9
-    else:
-        indexChosen = 0
+        if printType == "Price":
+            indexChosen = 1
+        elif printType == "Delta":
+            indexChosen = 2
+        elif printType == "Delta_Pct":
+            indexChosen = 3
+        elif printType == "Gamma":
+            indexChosen = 4
+        elif printType == "Gamma_Pct":
+            indexChosen = 5
+        elif printType == "Vega":
+            indexChosen = 6
+        elif printType == "Vega_Pct":
+            indexChosen = 7
+        elif printType == "Theta":
+            indexChosen = 8
+        elif printType == "Theta_Pct":
+            indexChosen = 9
+        else:
+            indexChosen = 0
 
-    if fromID is True:
-        [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
-        convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp)
-        benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
+        if fromID is True:
+            [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
+            convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp)
+            benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
 
-        heatMapDataSet = []
-        for y in range(0,11):
-            for x in range(0,11):
-                print(y,x)
-                sigmaShock = 0.95 + y * 0.01
-                s0Shock = 0.95 + x * 0.01
-                [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp] = getData(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
-                convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp)
-                difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen] #take care of the 0 case...
-                box = [y, x, difference]
-                heatMapDataSet.append(box)
-    else:
-        [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = getDataWithWindID(data, IDOrWindID, ratePoints, 1, 1)
-        convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet)
-        benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
+            heatMapDataSet = []
+            for y in range(0,11):
+                for x in range(0,11):
+                    print(y,x)
+                    sigmaShock = 0.95 + y * 0.01
+                    s0Shock = 0.95 + x * 0.01
+                    [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp] = getData(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
+                    convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp)
+                    difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen] #take care of the 0 case...
+                    box = [y, x, difference]
+                    heatMapDataSet.append(box)
+        else:
+            [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = getDataWithWindID(data, IDOrWindID, ratePoints, 1, 1)
+            convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet)
+            benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
 
-        heatMapDataSet = []
-        for y in range(0,11):
-            for x in range(0,11):
-                print(y,x)
-                sigmaShock = 0.95 + y * 0.01
-                s0Shock = 0.95 + x * 0.01
-                [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = getDataWithWindID(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
-                convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet)
-                difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen]
-                box = [y, x, difference]
-                heatMapDataSet.append(box)
+            heatMapDataSet = []
+            for y in range(0,11):
+                for x in range(0,11):
+                    print(y,x)
+                    sigmaShock = 0.95 + y * 0.01
+                    s0Shock = 0.95 + x * 0.01
+                    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = getDataWithWindID(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
+                    convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet)
+                    difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen]
+                    box = [y, x, difference]
+                    heatMapDataSet.append(box)
 
-    # result = {"heatMap": heatMapDataSet, "sumUp": difference}
-    # return result
-    return heatMapDataSet
+        return heatMapDataSet
 
 """
 def exportWholeExcel():
