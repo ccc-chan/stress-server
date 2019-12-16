@@ -8,9 +8,9 @@ from scipy import stats
 import pandas as pd
 from datetime import timedelta
 
-import optionPricingFormulas2 as opf2
-import optionGreeksFormulas as ogf
-import others as others
+from price import optionPricingFormulas2 as opf2
+from price import optionGreeksFormulas as ogf
+from price import others as others
 
 
 def computeCallData(vcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):

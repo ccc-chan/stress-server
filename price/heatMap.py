@@ -12,8 +12,8 @@ import seaborn as sns
 
 from datetime import datetime, timedelta
 
-import appModel as model
-import others as others
+from price import appModel as model
+from price import others as others
 
 
 def plotHeatMap(idNumber, today, ratePoints):

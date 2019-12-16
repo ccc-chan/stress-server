@@ -10,7 +10,7 @@ import pandas as pd
 
 from datetime import datetime, timedelta
 
-import pricingModel as pm
+from price import pricingModel as pm
 
 def setT(data, today):
     T_tmp = []
