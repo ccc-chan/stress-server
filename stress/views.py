@@ -79,26 +79,15 @@ def searchById(request):
   data = model.readData()
   data = others.setT(data,today)
   [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp] = model.getData(data, idToFind, ratePoints, s0Shock, sigmaShock)
-  # print([id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp])
-  # data = model.getData(idToFind, today, ratePoints, s0Shock, sigmaShock)
+  
   findResult = [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp]
   convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp)
   heatMapData = model.getHeatMapData(data, "Price", True, idToFind, ratePoints)
+  sumUpList = others.sumUpEachList(others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp))
   print(heatMapData)
-  # listResult = []
-  # for i,data in enumerate(dataResult):
-  #   total = 0
-  #   if i != 0:
-  #     for j,data1 in enumerate(dataResult[i]):
-  #       if data1 == None:
-  #         total = total
-  #       else:
-  #         total = total + data1
-  #     listResult.append([total])
-  #   else:
-  #     listResult.append([''])
-  # print(listResult)
-  result = {'data':findResult, 'sum': heatMapData.sum, 'heatMap:': heatMapData.heatMap}
+  print(sumUpList)
+
+  result = {'data':findResult, 'sum': sumUpList, 'heatMap:': heatMapData}
   return JsonResponse(json.dumps(result), safe=False)
 
 @csrf_exempt
@@ -121,20 +110,14 @@ def searchByWind(request):
   fy = float(query['FY'])
   hy = float(query['HY'])
   ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, hy]
-  dataResult = model.getDataWithWindID(windIDToFind, today, ratePoints, s0Shock, sigmaShock)
-  print("dataResult", dataResult)
-  listResult = []
-  for i,data in enumerate(dataResult):
-    total = 0
-    if i != 0:
-      for j,data1 in enumerate(dataResult[i]):
-        if data1 == None:
-          total = total
-        else:
-          total = total + data1
-      listResult.append([total])
-    else:
-      listResult.append([''])
-  print(listResult)
-  result = {'data':dataResult, 'sum': listResult}
+  data = model.readData()
+  data = others.setT(data,today)
+  [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
+  findResult = [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet]
+  sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet))
+  heatMapData = model.getHeatMapData(data, "Price", False, windIDToFind, ratePoints)
+  print("findResult", findResult)
+
+
+  result = {'data':findResult, 'sum': sumUpList, 'heatMap:': heatMapData}
   return JsonResponse(json.dumps(result), safe=False)
