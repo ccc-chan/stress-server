@@ -15,7 +15,7 @@ from price import riskFreeRate as rate
 
 
 def readData():
-    sigmaData = pd.read_excel("E:\stress-server\price\sigmaData.xls")
+    sigmaData = pd.read_excel("C:\\Users\\Jaheny\\Desktop\\git\\stress-server\\price\\sigmaData.xls")
     sigmaData = sigmaData.where(sigmaData.notnull(), None)
     defaultSigma = None
     defaultTodayPrice = None
@@ -45,7 +45,7 @@ def readData():
                 quantityDic[sigmaData["Unnamed: 1"][i].split()[-1]] = defaultQuantity
 
 
-    data = pd.read_excel("E:\stress-server\price\historyData.xls")
+    data = pd.read_excel("C:\\Users\\Jaheny\\Desktop\\git\\stress-server\\price\\historyData.xls")
     data = data.where(data.notnull(), None)
     data.drop([0], axis = 0, inplace = True) #inplace means data = data.changed
     data.reset_index(drop = True, inplace = True)
