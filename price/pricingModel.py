@@ -14,7 +14,11 @@ import others as others
 
 
 def computeCallData(vcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, sigma, amplifier = vcallData.loc[i, ["k", "s0", "T", "sigma", "合同参与率"]]
+    k_tmp, s0_tmp, T_tmp, sigma, amplifier, windID = vcallData.loc[i, ["k", "s0", "T", "sigma", "合同参与率", "WIND代码"]]
+    if windID[-2:] == "SH" or windID[-2:] == "SZ":
+        q = 0
+    else:
+        q = rf
     sigma = sigma * sigmaShock
     s0_tmp = s0_tmp * s0Shock
     a = float(amplifier[:-1]) / 100
@@ -26,14 +30,14 @@ def computeCallData(vcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShoc
         s0_tmp = 1.0
      
     if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
-        price_tmp = (opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp) * a)
-        delta_tmp = (ogf.callDelta(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
+        price_tmp = (opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a)
+        delta_tmp = (ogf.callDelta(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
         #gamma affected by s0IsOne?
-        gamma_tmp = (ogf.callGamma(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
-        vega_tmp = (ogf.callVega(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
+        gamma_tmp = (ogf.callGamma(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
+        vega_tmp = (ogf.callVega(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
 
-        p_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp) * a
-        pBoost_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp*1.0001) * a
+        p_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
+        pBoost_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp*1.0001, q) * a
         theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001))
     else:
         price_tmp = None
@@ -46,7 +50,11 @@ def computeCallData(vcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShoc
 
 
 def computePutData(vputData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, sigma, amplifier = vputData.loc[i, ["k", "s0", "T", "sigma", "合同参与率"]]
+    k_tmp, s0_tmp, T_tmp, sigma, amplifier, windID = vputData.loc[i, ["k", "s0", "T", "sigma", "合同参与率", "WIND代码"]]
+    if windID[-2:] == "SH" or windID[-2:] == "SZ":
+        q = 0
+    else:
+        q = rf
     sigma = sigma * sigmaShock
     s0_tmp = s0_tmp * s0Shock
     a = float(amplifier[:-1]) / 100
@@ -58,13 +66,13 @@ def computePutData(vputData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
         s0_tmp = 1.0
         
     if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
-        price_tmp = (opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp) * a)
-        delta_tmp = (ogf.putDelta(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
-        gamma_tmp = (ogf.putGamma(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
-        vega_tmp = (ogf.putVega(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
+        price_tmp = (opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a)
+        delta_tmp = (ogf.putDelta(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
+        gamma_tmp = (ogf.putGamma(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
+        vega_tmp = (ogf.putVega(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
 
-        p_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp) * a
-        pBoost_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp*1.0001) * a
+        p_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
+        pBoost_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp*1.0001, q) * a
         theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001))
     else:
         price_tmp = None
@@ -76,8 +84,12 @@ def computePutData(vputData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
 
 
 def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, sigma, amplifier, limit = bcallData.loc[i, ["k", "s0", "T", "sigma", "合同参与率", 
-                                                                    "Digital amount"]]
+    k_tmp, s0_tmp, T_tmp, sigma, amplifier, limit, windID = bcallData.loc[i, ["k", "s0", "T", "sigma", "合同参与率", 
+                                                                    "Digital amount", "WIND代码"]]
+    if windID[-2:] == "SH" or windID[-2:] == "SZ":
+        q = 0
+    else:
+        q = rf                                                                    
     sigma = sigma * sigmaShock
     s0_tmp = s0_tmp * s0Shock
     limit = float(limit[:-1]) / 100
@@ -90,19 +102,19 @@ def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaSho
         s0_tmp = 1.0
         
     if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
-        price_tmp = (opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp) * a * limit)
-        delta_tmp = (ogf.binaryCallDelta(s0_tmp, k_tmp, T_tmp, rf, sigma) * a)
+        price_tmp = (opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a * limit)
+        delta_tmp = (ogf.binaryCallDelta(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
 
-        pd_tmp = ogf.binaryCallDelta(s0_tmp*0.9999, k_tmp, T_tmp, rf, sigma) * a
-        pdBoost_tmp = ogf.binaryCallDelta(s0_tmp*1.0001, k_tmp, T_tmp, rf, sigma) * a
+        pd_tmp = ogf.binaryCallDelta(s0_tmp*0.9999, k_tmp, T_tmp, rf, sigma, q) * a
+        pdBoost_tmp = ogf.binaryCallDelta(s0_tmp*1.0001, k_tmp, T_tmp, rf, sigma, q) * a
         gamma_tmp = ((pdBoost_tmp - pd_tmp) / (s0_tmp*0.0002))
 
-        p_tmp = opf2.bcall(s0_tmp, k_tmp, sigma*0.9999, rf, T_tmp) * a * limit
-        pBoost_tmp = opf2.bcall(s0_tmp, k_tmp, sigma*1.0001, rf, T_tmp) * a * limit
+        p_tmp = opf2.bcall(s0_tmp, k_tmp, sigma*0.9999, rf, T_tmp, q) * a * limit
+        pBoost_tmp = opf2.bcall(s0_tmp, k_tmp, sigma*1.0001, rf, T_tmp, q) * a * limit
         vega_tmp = ((pBoost_tmp - p_tmp) / (sigma*0.0002)) / limit
 
-        p_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp) * a * limit
-        pBoost_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp*1.0001) * a * limit
+        p_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a * limit
+        pBoost_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp*1.0001, q) * a * limit
         theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001)) / limit
     else:
         price_tmp = None
@@ -115,8 +127,12 @@ def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaSho
 
 
 def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier = uocData.loc[i, ["k", "s0", "T", "上障碍价格", 
-                                                                           "Option Rebate", "sigma", "合同参与率"]]
+    k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier, windID = uocData.loc[i, ["k", "s0", "T", "上障碍价格", 
+                                                                           "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
+    if windID[-2:] == "SH" or windID[-2:] == "SZ":
+        q = 0
+    else:
+        q = rf
     sigma = sigma * sigmaShock
     s0_tmp = s0_tmp * s0Shock
     a = float(amplifier[:-1]) / 100
@@ -131,24 +147,24 @@ def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         s0_tmp = 1.0
     
     if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
-        price_tmp = (opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a)
+        price_tmp = (opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a)
         #Note: uoc(rebate * s0 / s0) * s0
 
-        p_tmp = opf2.uoc(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.uoc(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
+        p_tmp = opf2.uoc(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.uoc(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         delta_tmp = ((pBoost_tmp - p_tmp) / (s0_tmp*0.02))
 
-        p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.uoc(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pShrink_tmp = opf2.uoc(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
+        p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.uoc(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pShrink_tmp = opf2.uoc(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         gamma_tmp = ((pBoost_tmp + pShrink_tmp - 2*p_tmp) / ((s0_tmp*0.01)**2))
 
-        p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma+0.0001, rf, T_tmp, dt) * a
+        p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma+0.0001, rf, T_tmp, dt, q) * a
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.0001))
 
-        p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt) * a
+        p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt, q) * a
         theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001))
     else:
         price_tmp = None
@@ -161,8 +177,12 @@ def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
 
 
 def computeDOPData(dopData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier = dopData.loc[i, ["k", "s0", "T", "下障碍价格", 
-                                                                           "Option Rebate", "sigma", "合同参与率"]]
+    k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier, windID = dopData.loc[i, ["k", "s0", "T", "下障碍价格", 
+                                                                           "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
+    if windID[-2:] == "SH" or windID[-2:] == "SZ":
+        q = 0
+    else:
+        q = rf
     sigma = sigma * sigmaShock
     s0_tmp = s0_tmp * s0Shock
     a = float(amplifier[:-1]) / 100
@@ -177,23 +197,23 @@ def computeDOPData(dopData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         s0_tmp = 1.0
     
     if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
-        price_tmp = (opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a)
+        price_tmp = (opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a)
 
-        p_tmp = opf2.dop(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dop(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
+        p_tmp = opf2.dop(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dop(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         delta_tmp = ((pBoost_tmp - p_tmp) / (s0_tmp*0.02))
 
-        p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dop(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pShrink_tmp = opf2.dop(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
+        p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dop(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pShrink_tmp = opf2.dop(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         gamma_tmp = ((pBoost_tmp + pShrink_tmp - 2*p_tmp) / ((s0_tmp*0.01)**2))
 
-        p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma+ 0.0001, rf, T_tmp, dt) * a
+        p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma+ 0.0001, rf, T_tmp, dt, q) * a
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.0001))
 
-        p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt) * a
+        p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt, q) * a
         theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001))
     else:
         price_tmp = None
@@ -206,10 +226,14 @@ def computeDOPData(dopData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
 
 
 def computeDBCData(dbcData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, amplifier = dbcData.loc[i, ["k", "s0", "T", "下障碍价格", 
+    k_tmp, s0_tmp, T_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, amplifier, windID = dbcData.loc[i, ["k", "s0", "T", "下障碍价格", 
                                                                                                      "上障碍价格", 
                                                                                                      "Option Rebate", "sigma", 
-                                                                                                     "合同参与率"]]
+                                                                                                     "合同参与率", "WIND代码"]]
+    if windID[-2:] == "SH" or windID[-2:] == "SZ":
+        q = 0
+    else:
+        q = rf
     sigma = sigma * sigmaShock
     s0_tmp = s0_tmp * s0Shock
     a = float(amplifier[:-1]) / 100
@@ -225,23 +249,23 @@ def computeDBCData(dbcData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         s0_tmp = 1.0
     
     if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
-        price_tmp = (opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a)
+        price_tmp = (opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a)
 
-        p_tmp = opf2.dboc(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dboc(s0_tmp*1.01, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
+        p_tmp = opf2.dboc(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dboc(s0_tmp*1.01, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         delta_tmp = ((pBoost_tmp - p_tmp) / (s0_tmp*0.02))
 
-        p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dboc(s0_tmp*1.01, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pShrink_tmp = opf2.dboc(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
+        p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dboc(s0_tmp*1.01, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pShrink_tmp = opf2.dboc(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         gamma_tmp = ((pBoost_tmp + pShrink_tmp - 2*p_tmp) / ((s0_tmp*0.01)**2))
 
-        p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a 
-        pBoost_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma+0.0001, rf, T_tmp, dt) * a
+        p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a 
+        pBoost_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma+0.0001, rf, T_tmp, dt, q) * a
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.0001))
 
-        p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt) * a
+        p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt, q) * a
         theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001))
     else:
         price_tmp = None
@@ -254,11 +278,15 @@ def computeDBCData(dbcData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
 
 
 def computeDBPData(dbpData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, amplifier = dbpData.loc[i, ["k", "s0", "T", 
+    k_tmp, s0_tmp, T_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, amplifier, windID = dbpData.loc[i, ["k", "s0", "T", 
                                                                                                      "下障碍价格", 
                                                                                                      "上障碍价格", 
                                                                                                      "Option Rebate", 
-                                                                                                     "sigma", "合同参与率"]]
+                                                                                                     "sigma", "合同参与率", "WIND代码"]]
+    if windID[-2:] == "SH" or windID[-2:] == "SZ":
+        q = 0
+    else:
+        q = rf
     sigma = sigma * sigmaShock
     s0_tmp = s0_tmp * s0Shock
     a = float(amplifier[:-1]) / 100
@@ -274,23 +302,23 @@ def computeDBPData(dbpData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         s0_tmp = 1.0
         
     if others.computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
-        price_tmp = (opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a)
+        price_tmp = (opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a)
 
-        p_tmp = opf2.dbop(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dbop(s0_tmp*1.01, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
+        p_tmp = opf2.dbop(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dbop(s0_tmp*1.01, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         delta_tmp = ((pBoost_tmp - p_tmp) / (s0_tmp*0.02))
 
-        p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dbop(s0_tmp*1.01, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pShrink_tmp = opf2.dbop(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
+        p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dbop(s0_tmp*1.01, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pShrink_tmp = opf2.dbop(s0_tmp*0.99, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         gamma_tmp = ((pBoost_tmp + pShrink_tmp - 2*p_tmp) / ((s0_tmp*0.01)**2))
 
-        p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma+0.0001, rf, T_tmp, dt) * a
+        p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma+0.0001, rf, T_tmp, dt, q) * a
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.0001))
 
-        p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt) * a
-        pBoost_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt) * a
+        p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt, q) * a
         theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001))
     else:
         price_tmp = None

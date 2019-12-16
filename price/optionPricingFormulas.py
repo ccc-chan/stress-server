@@ -30,7 +30,7 @@ def bput(k, v, r, T, q = 0):#二值看跌
 def bulls(k1, k2, v, r, T, q = 0):#牛市价差
     return call(k1, v, r, T, q) - call(k2, v, r, T, q)
 
-def bears(k1, k2, v, r, T, q):#熊市价差
+def bears(k1, k2, v, r, T, q = 0):#熊市价差
     return put(k2, v, r, T, q) - put(k1, v, r, T, q)
 
 def buo(b, v, r, T, dt = 0, q = 0):
@@ -110,7 +110,7 @@ def F(k, b, v, r, T, dt = 0, q = 0):
 def dop(k, b, rb, v, r, T, dt = 0, q = 0):
     #dop是dop0rb和bdi的线性组合
     #dop = dop0rb + F
-    return dop0rb(k, b, v, r, T, dt, q) + rb * F(k, b, rb, v, r, T, dt, q)
+    return dop0rb(k, b, v, r, T, dt, q) + rb * F(k, b, v, r, T, dt, q)
 
 """
 def dboc0rb(k, b1, b2, v, r, T, dt = 0, q = 0):
@@ -146,7 +146,7 @@ def dboc0rb(k, b1, b2, v, r, T, dt = 0, q = 0):
     rqv = (r - q)*T/vSqrtT + 0.5*vSqrtT #Miss (r-q)*T?
     sum1 = sum2 = 0
     mu1 = 2*(r - q)/v/v + 1
-    mu2 = 0
+    #mu2 = 0
     mu3 = mu1
     for n in range(-5, 6):
         d1 = (2*n*log(b2/b1) - log(k))/vSqrtT + rqv
@@ -261,7 +261,9 @@ def dbop(k, b1, b2, rb, v, r, T, dt = 0, q = 0):
     #dbop = dbop0rb + rb * dbudi
     return dbop0rb(k, b1, b2, v, r, T, dt, q) + rb * dbudi(k, b1, b2, v, r, T, dt, q)
 
+"""
 def dko(k1, k2, b1, b2, rb, v, r, T, dt = 0, q = 0):
     #dko是dboc0rb，dbop0rb和bdbi的线性组合
     return dboc0rb(k2, b1, b2, v, r, T, dt, q) + dbop0rb(k1, b1, b2, v, r, T, dt, q) + \
            rb*bdbi(b1, b2, v, r, T, dt, q)
+"""
