@@ -123,6 +123,7 @@ def selectChart(request):
   query = json.loads(request.body)['query']
   windIDToFind = query['contract_name']
   today = query['timeShift']
+  chartType = query['type']
 
   om = float(query['OM'])
   tm = float(query['TM'])
@@ -136,6 +137,6 @@ def selectChart(request):
   ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, hy]
   data = model.readData()
   data = others.setT(data,today)
-  heatMapData = model.getHeatMapData(data, "Price", False, windIDToFind, ratePoints)
+  heatMapData = model.getHeatMapData(data, chartType, False, windIDToFind, ratePoints)
   # result = {'heatMap:': heatMapData}
   return JsonResponse(json.dumps(heatMapData), safe=False)

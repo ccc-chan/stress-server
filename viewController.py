@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import TOP, W, X, LEFT, YES, BOTH
 import os
-import appModel as model
-import others as others
+from price import appModel as model
+from price import others as others
 
-import heatMap as heatMap
+from price import heatMap as heatMap
 
 #import matplotlib.pyplot as plt
 #from pyecharts import Bar
@@ -195,7 +195,7 @@ class Application(tk.Frame):
         data = others.setT(data,today) # data is T-sensitive
         [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp] = model.getData(data, idToFind, ratePoints, s0Shock, sigmaShock)
         #heatMapData = model.getHeatMapData(data, "Price", True, idToFind, ratePoints)
-        #print(heatMapData)
+        #print(heatMapData[0])
         print(price_tmp[0], deltaExposure[0], delta_tmp[0], gammaExposure[0], gamma_tmp[0], thetaExposure[0], theta_tmp[0], vegaExposure[0], vega_tmp[0])
         
     def windIDSearch(self):
@@ -212,7 +212,7 @@ class Application(tk.Frame):
 
         #convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet)
         #heatMapData = model.getHeatMapData(data, "Price", False, windIDToFind, ratePoints)
-        #print(heatMapData)
+        #print(heatMapData[0])
         #print(others.sumUpEachList(convertedData))
         
     def plot(self):
