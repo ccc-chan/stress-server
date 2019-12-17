@@ -15,21 +15,16 @@ from price import heatMap as heatMap
 @csrf_exempt
 def createTime(request):
   hTime = ''
-  sTime = ''
-  historyPath = os.path.abspath(os.path.join(__file__, "../historyData.xls"))
-  sigmaPath = os.path.abspath(os.path.join(__file__, "../sigmaData.xls"))
+  historyPath = os.path.abspath(os.path.join(__file__, r"../../price/data.xls"))
   if os.path.exists(historyPath): 
     historyTime = time.localtime(os.stat(historyPath).st_mtime)
     hTime = time.strftime('%Y-%m-%d %H:%M:%S', historyTime)
-  if os.path.exists(sigmaPath): 
-    sigmaTime = time.localtime(os.stat(sigmaPath).st_mtime)
-    sTime = time.strftime('%Y-%m-%d %H:%M:%S', sigmaTime)
-  return JsonResponse({'hTime': hTime, 'sTime': sTime})
+  return JsonResponse({'hTime': hTime})
 
 @csrf_exempt
 def uploadHistory(request):
   data = request.FILES.get('historyFile')
-  file_full_path = os.path.abspath(os.path.join(__file__, "../historyData.xls"))
+  file_full_path = os.path.abspath(os.path.join(__file__, r"../../price/data.xls"))
   if os.path.exists(file_full_path): 
     os.remove(file_full_path)
   dest = open(file_full_path,'wb+')
@@ -38,17 +33,17 @@ def uploadHistory(request):
   res = createTime(request)
   return res
 
-@csrf_exempt
-def uploadSigma(request):
-  data = request.FILES.get('sigmaFiles')
-  file_full_path = os.path.abspath(os.path.join(__file__, "../sigmaData.xls"))
-  if os.path.exists(file_full_path): 
-    os.remove(file_full_path)
-  dest = open(file_full_path,'wb+')
-  dest.write(data.read())
-  dest.close()
-  res = createTime(request)
-  return res
+# @csrf_exempt
+# def uploadSigma(request):
+#   data = request.FILES.get('sigmaFiles')
+#   file_full_path = os.path.abspath(os.path.join(__file__, "../sigmaData.xls"))
+#   if os.path.exists(file_full_path): 
+#     os.remove(file_full_path)
+#   dest = open(file_full_path,'wb+')
+#   dest.write(data.read())
+#   dest.close()
+#   res = createTime(request)
+#   return res
 
 @csrf_exempt
 def searchById(request):

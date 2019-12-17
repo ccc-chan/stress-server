@@ -22,7 +22,7 @@ urlpatterns = [
     path('searchById/', Stress.searchById),
     path('searchByWind/', Stress.searchByWind),
     path('upload/', Stress.uploadHistory),
-    path('uploadSigma/', Stress.uploadSigma),
+    # path('uploadSigma/', Stress.uploadSigma),
     path('createTime/', Stress.createTime),
     path('selectChart/', Stress.selectChart),
 ]
