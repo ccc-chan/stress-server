@@ -11,31 +11,25 @@ from price import others as others
 from price import heatMap as heatMap
 # Create your views here.
 
-@csrf_exempt
-def test(request):
-  query = json.loads(request.body)['query']
-  idToFind = query['ID']
-  today = query['timeShift']
-  ratePoints = [None, 0.023, 0.0251, 0.0256, 0.0257, 0.0259, 0.0265, 0.0271, 0.028, 0.0288]
-  heatMap.plotHeatMap(idToFind, today, ratePoints)
-  print("Plotted")
 
 @csrf_exempt
 def createTime(request):
   hTime = ''
   sTime = ''
-  if os.path.exists('E:/stress-server/price/historyData.xls'): 
-    historyTime = time.localtime(os.stat("E:/stress-server/price/historyData.xls").st_mtime)
+  historyPath = os.path.abspath(os.path.join(__file__, "../historyData.xls"))
+  sigmaPath = os.path.abspath(os.path.join(__file__, "../sigmaData.xls"))
+  if os.path.exists(historyPath): 
+    historyTime = time.localtime(os.stat(historyPath).st_mtime)
     hTime = time.strftime('%Y-%m-%d %H:%M:%S', historyTime)
-  if os.path.exists('E:/stress-server/price/sigmaData.xls'): 
-    sigmaTime = time.localtime(os.stat("E:/stress-server/price/sigmaData.xls").st_mtime)
+  if os.path.exists(sigmaPath): 
+    sigmaTime = time.localtime(os.stat(sigmaPath).st_mtime)
     sTime = time.strftime('%Y-%m-%d %H:%M:%S', sigmaTime)
   return JsonResponse({'hTime': hTime, 'sTime': sTime})
 
 @csrf_exempt
 def uploadHistory(request):
   data = request.FILES.get('historyFile')
-  file_full_path = 'E:/stress-server/price/historyData.xls'
+  file_full_path = os.path.abspath(os.path.join(__file__, "../historyData.xls"))
   if os.path.exists(file_full_path): 
     os.remove(file_full_path)
   dest = open(file_full_path,'wb+')
@@ -47,7 +41,7 @@ def uploadHistory(request):
 @csrf_exempt
 def uploadSigma(request):
   data = request.FILES.get('sigmaFiles')
-  file_full_path = 'E:/stress-server/price/sigmaData.xls'
+  file_full_path = os.path.abspath(os.path.join(__file__, "../sigmaData.xls"))
   if os.path.exists(file_full_path): 
     os.remove(file_full_path)
   dest = open(file_full_path,'wb+')
