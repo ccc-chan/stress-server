@@ -109,9 +109,34 @@ def searchByWind(request):
   [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
   findResult = [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet]
   sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet))
-  heatMapData = model.getHeatMapData(data, "Price", False, windIDToFind, ratePoints)
+  # heatMapData = model.getHeatMapData(data, "Price", False, windIDToFind, ratePoints)
   print("findResult", findResult)
 
 
-  result = {'data':findResult, 'sum': sumUpList, 'heatMap:': heatMapData}
+  result = {'data':findResult, 'sum': sumUpList}
   return JsonResponse(json.dumps(result), safe=False)
+
+@csrf_exempt
+def selectChart(request): 
+  params = request.body
+  print(params)
+  query = json.loads(request.body)['query']
+  windIDToFind = query['contract_name']
+  today = query['timeShift']
+  chartType = query['type']
+
+  om = float(query['OM'])
+  tm = float(query['TM'])
+  sm = float(query['SM'])
+  nm = float(query['NM'])
+  oy = float(query['OY'])
+  sy = float(query['SY'])
+  ty = float(query['TY'])
+  fy = float(query['FY'])
+  hy = float(query['HY'])
+  ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, hy]
+  data = model.readData()
+  data = others.setT(data,today)
+  heatMapData = model.getHeatMapData(data, chartType, False, windIDToFind, ratePoints)
+  # result = {'heatMap:': heatMapData}
+  return JsonResponse(json.dumps(heatMapData), safe=False)
