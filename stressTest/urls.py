@@ -24,4 +24,5 @@ urlpatterns = [
     path('upload/', Stress.uploadHistory),
     path('uploadSigma/', Stress.uploadSigma),
     path('createTime/', Stress.createTime),
+    path('selectChart/', Stress.selectChart),
 ]

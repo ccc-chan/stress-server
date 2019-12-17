@@ -221,7 +221,7 @@ def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
             heatMapDataSet = []
             for y in range(0,11):
                 for x in range(0,11):
-                    print(y,x)
+                    # print(y,x)
                     sigmaShock = 0.95 + y * 0.01
                     s0Shock = 0.95 + x * 0.01
                     [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp] = getData(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
@@ -237,7 +237,7 @@ def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
             heatMapDataSet = []
             for y in range(0,11):
                 for x in range(0,11):
-                    print(y,x)
+                    # print(y,x)
                     sigmaShock = 0.95 + y * 0.01
                     s0Shock = 0.95 + x * 0.01
                     [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = getDataWithWindID(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
