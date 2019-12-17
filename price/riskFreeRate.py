@@ -23,6 +23,9 @@ def getRiskFreeRate(T, ratePoints):
     
     if ONPoint is None:
         ONPoint = oneMonthPoint
+    if fiveYearPoint is None:
+        fiveYearPoint = fourYearPoint
+    
     if T <= 1:
         return ONPoint
     elif T > 1 and T <= 31:

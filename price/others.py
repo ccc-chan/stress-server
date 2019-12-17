@@ -95,6 +95,11 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
             thetaExposure = thetaExposure * data["startingPrice"][indexToFind] * limit
     else:
         thetaExposure = None
+
+    if quantity is not None and price_tmp is not None:
+        PV = quantity * price_tmp
+    else:
+        PV = None
         
     if delta_tmp is not None:
         delta_tmp = round(delta_tmp * 100, 10)
@@ -112,6 +117,8 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
         vegaExposure = round(vegaExposure * 0.01, 10)
     if thetaExposure is not None:
         thetaExposure = round(thetaExposure, 10)
+    if PV is not None:
+        PV = round(PV, 10)
         
     if buy is not None and buy == False:
         if price_tmp is not None:
@@ -132,11 +139,13 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
             thetaExposure = -1 * thetaExposure
         if theta_tmp is not None:
             theta_tmp = -1 * theta_tmp
+        if PV is not None:
+            PV = -1 * PV
     
     idToFind = data["AGGREGATION BUNDLE"][indexToFind]
-    return [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp]
+    return [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV]
 
-def convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet):
+def convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet):
     dataExport = [] #fixed format
     dataExport.append(idSet)
     dataExport.append(price_tmpSet)
@@ -148,13 +157,14 @@ def convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExp
     dataExport.append(vega_tmpSet)
     dataExport.append(thetaExposureSet)
     dataExport.append(theta_tmpSet)
+    dataExport.append(PVSet)
     return dataExport
 
 def extractDataSet(dataExport):
-    return [dataExport[0], dataExport[1], dataExport[2], dataExport[3], dataExport[4], dataExport[5], dataExport[6], dataExport[7], dataExport[8], dataExport[9]]
+    return [dataExport[0], dataExport[1], dataExport[2], dataExport[3], dataExport[4], dataExport[5], dataExport[6], dataExport[7], dataExport[8], dataExport[9], dataExport[10]]
     
 def sumUpEachList(dataExport):
-    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = extractDataSet(dataExport)
+    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet] = extractDataSet(dataExport)
     priceSum = 0.0
     deltaExposureSum = 0.0
     deltaSum = 0.0
@@ -164,6 +174,7 @@ def sumUpEachList(dataExport):
     vegaSum = 0.0
     thetaExposureSum = 0.0
     thetaSum = 0.0
+    PVSum = 0.0
     
     for i in range(len(idSet)):
         if price_tmpSet[i] is not None:
@@ -176,8 +187,9 @@ def sumUpEachList(dataExport):
             vegaSum = vegaSum + vega_tmpSet[i]
             thetaExposureSum = thetaExposureSum + thetaExposureSet[i]
             thetaSum = thetaSum + theta_tmpSet[i]
+            PVSum = PVSum + PVSet[i]
  
-    return [None, priceSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, vegaExposureSum, vegaSum, thetaExposureSum, thetaSum]
+    return [None, priceSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, vegaExposureSum, vegaSum, thetaExposureSum, thetaSum, PVSum]
 
 def computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
     if s0_tmp is not None and k_tmp is not None and sigma is not None and T_tmp is not None:
@@ -185,6 +197,12 @@ def computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
             return True
         else:
             return False
+    else:
+        return False
+
+def isNormalID(idToIdentify):
+    if len(idToIdentify) == 8 and idToIdentify.isdigit():
+        return True
     else:
         return False
 
