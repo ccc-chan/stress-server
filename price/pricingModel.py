@@ -39,6 +39,10 @@ def computeCallData(vcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShoc
         p_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
         pBoost_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp*1.0001, q) * a
         theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001))
+
+        #p_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
+        #pBoost_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp + 1/365, q) * a
+        #theta_tmp = pBoost_tmp - p_tmp
     else:
         price_tmp = None
         delta_tmp = None
@@ -84,8 +88,7 @@ def computePutData(vputData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
 
 
 def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, sigma, amplifier, limit, windID = bcallData.loc[i, ["k", "s0", "T", "sigma", "合同参与率", 
-                                                                    "Digital amount", "WIND代码"]]
+    k_tmp, s0_tmp, T_tmp, sigma, amplifier, limit, windID = bcallData.loc[i, ["k", "s0", "T", "sigma", "合同参与率", "Digital amount", "WIND代码"]]
     if windID[-2:] == "SH" or windID[-2:] == "SZ":
         q = 0
     else:
@@ -127,8 +130,7 @@ def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaSho
 
 
 def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier, windID = uocData.loc[i, ["k", "s0", "T", "上障碍价格", 
-                                                                           "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
+    k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier, windID = uocData.loc[i, ["k", "s0", "T", "上障碍价格", "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
     if windID[-2:] == "SH" or windID[-2:] == "SZ":
         q = 0
     else:
@@ -156,16 +158,25 @@ def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
 
         p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         pBoost_tmp = opf2.uoc(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        #print("Up: ", pBoost_tmp)
         pShrink_tmp = opf2.uoc(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        #print("Down: ", pShrink_tmp)
         gamma_tmp = ((pBoost_tmp + pShrink_tmp - 2*p_tmp) / ((s0_tmp*0.01)**2))
 
         p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma+0.01, rf, T_tmp, dt, q) * a
+        #print("Sigma Up: ", pBoost_tmp)
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.01))
 
         p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
-        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp + 1/365, dt, q) * a
-        theta_tmp = ((pBoost_tmp - p_tmp) / (1))
+        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp*1.0001, dt, q) * a
+        #print("t Up: ", pBoost_tmp)
+        theta_tmp = (-1 * (pBoost_tmp - p_tmp) / (T_tmp*0.0001))
+
+        #p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        #pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp + 1/365, dt, q) * a
+        #print("t + 1: ", pBoost_tmp)
+        #theta_tmp = ((pBoost_tmp - p_tmp) / (1))
     else:
         price_tmp = None
         delta_tmp = None
@@ -177,8 +188,7 @@ def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
 
 
 def computeDOPData(dopData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier, windID = dopData.loc[i, ["k", "s0", "T", "下障碍价格", 
-                                                                           "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
+    k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier, windID = dopData.loc[i, ["k", "s0", "T", "下障碍价格", "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
     if windID[-2:] == "SH" or windID[-2:] == "SZ":
         q = 0
     else:
@@ -226,10 +236,7 @@ def computeDOPData(dopData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
 
 
 def computeDBCData(dbcData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, amplifier, windID = dbcData.loc[i, ["k", "s0", "T", "下障碍价格", 
-                                                                                                     "上障碍价格", 
-                                                                                                     "Option Rebate", "sigma", 
-                                                                                                     "合同参与率", "WIND代码"]]
+    k_tmp, s0_tmp, T_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, amplifier, windID = dbcData.loc[i, ["k", "s0", "T", "下障碍价格", "上障碍价格", "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
     if windID[-2:] == "SH" or windID[-2:] == "SZ":
         q = 0
     else:
@@ -278,11 +285,7 @@ def computeDBCData(dbcData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
 
 
 def computeDBPData(dbpData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
-    k_tmp, s0_tmp, T_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, amplifier, windID = dbpData.loc[i, ["k", "s0", "T", 
-                                                                                                     "下障碍价格", 
-                                                                                                     "上障碍价格", 
-                                                                                                     "Option Rebate", 
-                                                                                                     "sigma", "合同参与率", "WIND代码"]]
+    k_tmp, s0_tmp, T_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, amplifier, windID = dbpData.loc[i, ["k", "s0", "T",  "下障碍价格",  "上障碍价格", "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
     if windID[-2:] == "SH" or windID[-2:] == "SZ":
         q = 0
     else:

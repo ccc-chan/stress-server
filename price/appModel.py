@@ -17,8 +17,8 @@ from price import riskFreeRate as rate
 
 
 def readData():
-    sigmaDataPath = os.path.abspath(os.path.join(__file__, "../sigmaData.xls"))
-    sigmaData = pd.read_excel(sigmaDataPath)
+    sigmaDataPath = os.path.abspath(os.path.join(__file__, "../testData.xlsx"))
+    sigmaData = pd.read_excel(sigmaDataPath, sheet_name="EOD Position Report")
     sigmaData = sigmaData.where(sigmaData.notnull(), None)
     defaultSigma = None
     defaultTodayPrice = None
@@ -48,11 +48,11 @@ def readData():
                 quantityDic[sigmaData["Unnamed: 1"][i].split()[-1]] = defaultQuantity
 
 
-    historyDataPath = os.path.abspath(os.path.join(__file__, "../historyData.xls"))
-    data = pd.read_excel(historyDataPath)
+    historyDataPath = os.path.abspath(os.path.join(__file__, "../testData.xlsx"))
+    data = pd.read_excel(historyDataPath, sheet_name="Bundle Reports")
     data = data.where(data.notnull(), None)
-    data.drop([0], axis = 0, inplace = True) #inplace means data = data.changed
-    data.reset_index(drop = True, inplace = True)
+    #data.drop([0], axis = 0, inplace = True) #inplace means data = data.changed
+    #data.reset_index(drop = True, inplace = True)
     data.rename(columns = {"AGGREGATION":"AGGREGATION BUNDLE"}, inplace = True)
     
     liveIDBoolSet = []
