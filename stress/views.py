@@ -54,6 +54,8 @@ def searchById(request):
   today = query['timeShift']
   s0Shock = query['price_bump']
   sigmaShock = query['volatility_bump']
+  chartType = query['type']
+
   om = float(query['OM'])
   tm = float(query['TM'])
   sm = float(query['SM'])
@@ -71,12 +73,12 @@ def searchById(request):
   
   findResult = [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp]
   convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp)
-  heatMapData = model.getHeatMapData(data, "Price", True, idToFind, ratePoints)
+  heatMapData = model.getHeatMapData(data, chartType, True, idToFind, ratePoints)
   sumUpList = others.sumUpEachList(others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp))
   print(heatMapData)
   print(sumUpList)
 
-  result = {'data':findResult, 'sum': sumUpList, 'heatMap:': heatMapData}
+  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData}
   return JsonResponse(json.dumps(result), safe=False)
 
 @csrf_exempt
@@ -88,6 +90,7 @@ def searchByWind(request):
   today = query['timeShift']
   s0Shock = query['price_bump']
   sigmaShock = query['volatility_bump']
+  chartType = query['type']
 
   om = float(query['OM'])
   tm = float(query['TM'])
@@ -104,11 +107,11 @@ def searchByWind(request):
   [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
   findResult = [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet]
   sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet))
-  # heatMapData = model.getHeatMapData(data, "Price", False, windIDToFind, ratePoints)
+  heatMapData = model.getHeatMapData(data, chartType, False, windIDToFind, ratePoints)
   print("findResult", findResult)
 
 
-  result = {'data':findResult, 'sum': sumUpList}
+  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData}
   return JsonResponse(json.dumps(result), safe=False)
 
 @csrf_exempt
