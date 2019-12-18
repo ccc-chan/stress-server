@@ -129,7 +129,7 @@ def getData(data, idToFind, ratePoints, s0Shock, sigmaShock):
         quantity = data["quantity"][indexToFind]
         buy = data["buy"][indexToFind]
         #computePrice(data, dataType, indexToFind, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
-        [price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp] = others.computePrice(data, dataType, indexToFind, 0, s0IsOne, rf, dt, s0Shock, sigmaShock)  
+        [price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp] = others.computePrice(data, dataType, indexToFind, 0, s0IsOne, rf, dt, s0Shock, sigmaShock)
         
         if price_tmp is not None and dataType != "BCALL":
             price_tmp = round(price_tmp / data["startingPrice"][indexToFind], 10)

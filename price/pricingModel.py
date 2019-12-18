@@ -36,9 +36,15 @@ def computeCallData(vcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShoc
         gamma_tmp = (ogf.callGamma(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
         vega_tmp = (ogf.callVega(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
 
-        p_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
-        pBoost_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp - 1/365, q) * a
-        theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        if (T_tmp - 1/365) > 0:
+            p_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
+            pBoost_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp - 1/365, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        else:
+            p_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
+            pBoost_tmp = opf2.call(s0_tmp, k_tmp, sigma, rf, T_tmp - 0.5/365, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (0.5/365)
+
     else:
         price_tmp = None
         delta_tmp = None
@@ -71,9 +77,15 @@ def computePutData(vputData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
         gamma_tmp = (ogf.putGamma(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
         vega_tmp = (ogf.putVega(s0_tmp, k_tmp, T_tmp, rf, sigma, q) * a)
 
-        p_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
-        pBoost_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp - 1/365, q) * a
-        theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        if (T_tmp - 1/365) > 0:
+            p_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
+            pBoost_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp - 1/365, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        else:
+            p_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a
+            pBoost_tmp = opf2.put(s0_tmp, k_tmp, sigma, rf, T_tmp - 0.5/365, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (0.5/365)
+
     else:
         price_tmp = None
         delta_tmp = None
@@ -112,9 +124,15 @@ def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaSho
         pBoost_tmp = opf2.bcall(s0_tmp, k_tmp, sigma+0.01, rf, T_tmp, q) * a * limit
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.01)) / limit
 
-        p_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a * limit
-        pBoost_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp - 1/365, q) * a * limit
-        theta_tmp = ((pBoost_tmp - p_tmp) / (1/365)) / limit
+        if (T_tmp - 1/365) > 0:
+            p_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a * limit
+            pBoost_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp - 1/365, q) * a * limit
+            theta_tmp = ((pBoost_tmp - p_tmp) / (1/365)) / limit
+        else:
+            p_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp, q) * a * limit
+            pBoost_tmp = opf2.bcall(s0_tmp, k_tmp, sigma, rf, T_tmp - 0.5/365, q) * a * limit
+            theta_tmp = ((pBoost_tmp - p_tmp) / (0.5/365)) / limit
+
     else:
         price_tmp = None
         delta_tmp = None
@@ -164,10 +182,17 @@ def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         #print("Sigma Up: ", pBoost_tmp)
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.01))
 
-        p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
-        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
-        #print("t - 1: ", pBoost_tmp)
-        theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        if (T_tmp - 1/365) > 0:
+            p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+            pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
+            #print("t - 1: ", pBoost_tmp)
+            theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        else:
+            p_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+            pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 0.5/365, dt, q) * a
+            #print("t - 1: ", pBoost_tmp)
+            theta_tmp = (pBoost_tmp - p_tmp) / (0.5/365)
+
     else:
         price_tmp = None
         delta_tmp = None
@@ -213,9 +238,15 @@ def computeDOPData(dopData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         pBoost_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma+0.01, rf, T_tmp, dt, q) * a
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.01))
 
-        p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
-        pBoost_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
-        theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        if (T_tmp - 1/365) > 0:
+            p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+            pBoost_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        else:
+            p_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+            pBoost_tmp = opf2.dop(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 0.5/365, dt, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (0.5/365)
+
     else:
         price_tmp = None
         delta_tmp = None
@@ -262,9 +293,15 @@ def computeDBCData(dbcData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         pBoost_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma+0.01, rf, T_tmp, dt, q) * a
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.01))
 
-        p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
-        pBoost_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
-        theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        if (T_tmp - 1/365) > 0:
+            p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+            pBoost_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        else:
+            p_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+            pBoost_tmp = opf2.dboc(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp - 0.5/365, dt, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (0.5/365)
+
     else:
         price_tmp = None
         delta_tmp = None
@@ -311,9 +348,15 @@ def computeDBPData(dbpData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         pBoost_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma+0.01, rf, T_tmp, dt, q) * a
         vega_tmp = ((pBoost_tmp - p_tmp) / (0.01))
 
-        p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
-        pBoost_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
-        theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        if (T_tmp - 1/365) > 0:
+            p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+            pBoost_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+        else:
+            p_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+            pBoost_tmp = opf2.dbop(s0_tmp, k_tmp, barrierL_tmp, barrierU_tmp, rebate_tmp, sigma, rf, T_tmp - 0.5/365, dt, q) * a
+            theta_tmp = (pBoost_tmp - p_tmp) / (0.5/365)
+
     else:
         price_tmp = None
         delta_tmp = None
