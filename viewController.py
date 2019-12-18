@@ -201,7 +201,7 @@ class Application(tk.Frame):
         """
         data = model.readData()
         data = others.setT(data,today) # data is T-sensitive
-        [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp] = model.getData(data, idToFind, ratePoints, s0Shock, sigmaShock)
+        [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = model.getData(data, idToFind, ratePoints, s0Shock, sigmaShock)
         #heatMapData = model.getHeatMapData(data, "Price", True, idToFind, ratePoints)
         #print(heatMapData[0])
         print(price_tmp[0], deltaExposure[0], delta_tmp[0], gammaExposure[0], gamma_tmp[0], thetaExposure[0], theta_tmp[0], vegaExposure[0], vega_tmp[0], PV_tmp[0])
@@ -214,8 +214,8 @@ class Application(tk.Frame):
         ratePoints = [None, 0.0229471, 0.0250464, 0.0254817, 0.0255681, 0.0258563, 0.0263679, 0.0270334, 0.0279025, None]
         data = model.readData()
         data = others.setT(data,today) # data is T-sensitive
-        [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
-        sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet))
+        [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
+        sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet))
         print(sumUpList)
 
         #heatMapData = model.getHeatMapData(data, "Price", False, windIDToFind, ratePoints)
