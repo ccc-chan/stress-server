@@ -221,7 +221,19 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
         others.listFormatter(vega_tmpSet, False),
         others.listFormatter(PVSet, True)]
 
-def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
+def getBenchMarkList(data, fromID, IDOrWindID, ratePoints):
+    if fromID:
+        [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
+        convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp)
+        benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
+    else:
+        [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithWindID(data, IDOrWindID, ratePoints, 1, 1)
+        convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
+        benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
+    return benchMark
+
+
+def getHeatMapData(data, benchMark, printType, fromID, IDOrWindID, ratePoints):
         if printType == "Price":
             indexChosen = 1
         elif printType == "Delta":
@@ -247,10 +259,6 @@ def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
 
         if fromID is True:
             differenceList = []
-            [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
-            convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp)
-            benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
-
             heatMapDataSet = []
             for y in range(0,11):
                 for x in range(0,11):
@@ -266,10 +274,6 @@ def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
                     heatMapDataSet.append(box)
         else:
             differenceList = []
-            [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithWindID(data, IDOrWindID, ratePoints, 1, 1)
-            convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
-            benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
-
             heatMapDataSet = []
             for y in range(0,11):
                 for x in range(0,11):

@@ -75,10 +75,11 @@ def idSearch(query):
   #print(ratePoints)
   data = model.readData()
   data = others.setT(data,today)
+  benchMark = model.getBenchMarkList(data, True, idToFind, ratePoints)
   [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = model.getData(data, idToFind, ratePoints, s0Shock, sigmaShock)
   findResult = [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp]
-  heatMapData = model.getHeatMapData(data, chartType, True, idToFind, ratePoints)
   sumUpList = others.sumUpEachList(others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp))
+  heatMapData = model.getHeatMapData(data, benchMark, chartType, True, idToFind, ratePoints)
   #print(heatMapData)
   #print(sumUpList)
 
@@ -104,10 +105,11 @@ def windIDSearch(query):
   ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, None]
   data = model.readData()
   data = others.setT(data,today)
+  benchMark = model.getBenchMarkList(data, False, windIDToFind, ratePoints)
   [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
   findResult = [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet]
   sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet))
-  heatMapData = model.getHeatMapData(data, chartType, False, windIDToFind, ratePoints)
+  heatMapData = model.getHeatMapData(data, benchMark, chartType, False, windIDToFind, ratePoints)
   #print("findResult", findResult)
 
 

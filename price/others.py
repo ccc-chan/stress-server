@@ -143,6 +143,7 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
             PV = -1 * PV
     
     idToFind = data["AGGREGATION BUNDLE"][indexToFind]
+    #Up to here, theta then vega only
     return [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV]
 
 def convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet):
