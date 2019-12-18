@@ -147,7 +147,17 @@ def getData(data, idToFind, ratePoints, s0Shock, sigmaShock):
         [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp] = [None, None, None, None, None, None, None, None, None, None, None, None]
     
     #no quantity
-    return [[idToFind], [price_tmp], [deltaExposure], [delta_tmp], [gammaExposure], [gamma_tmp], [vegaExposure], [vega_tmp], [thetaExposure], [theta_tmp], [PV_tmp]]
+    return [[idToFind], 
+        others.listFormatter([price_tmp], False), 
+        others.listFormatter([deltaExposure], True), 
+        others.listFormatter([delta_tmp], False), 
+        others.listFormatter([gammaExposure], True), 
+        others.listFormatter([gamma_tmp], False), 
+        others.listFormatter([vegaExposure], True),
+        others.listFormatter([vega_tmp], False),
+        others.listFormatter([thetaExposure], True),
+        others.listFormatter([theta_tmp], False),
+        others.listFormatter([PV_tmp], True)]
 
 def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
     s0Shock = float(s0Shock)
@@ -199,7 +209,17 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
             PVSet.append(PV_tmp)
             idSet.append(idToFind)
         
-    return [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet]
+    return [idSet, 
+        others.listFormatter(price_tmpSet, False), 
+        others.listFormatter(deltaExposureSet, True), 
+        others.listFormatter(delta_tmpSet, False), 
+        others.listFormatter(gammaExposureSet, True), 
+        others.listFormatter(gamma_tmpSet, False), 
+        others.listFormatter(vegaExposureSet, True),
+        others.listFormatter(vega_tmpSet, False),
+        others.listFormatter(thetaExposureSet, True),
+        others.listFormatter(theta_tmpSet, False),
+        others.listFormatter(PVSet, True)]
 
 def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
         if printType == "Price":

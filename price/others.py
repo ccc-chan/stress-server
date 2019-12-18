@@ -189,7 +189,17 @@ def sumUpEachList(dataExport):
             thetaSum = thetaSum + theta_tmpSet[i]
             PVSum = PVSum + PVSet[i]
  
-    return [None, priceSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, vegaExposureSum, vegaSum, thetaExposureSum, thetaSum, PVSum]
+    return [None, 
+        outputFormatter(priceSum, False), 
+        outputFormatter(deltaExposureSum, True), 
+        outputFormatter(deltaSum, False), 
+        outputFormatter(gammaExposureSum, True), 
+        outputFormatter(gammaSum, False), 
+        outputFormatter(vegaExposureSum, True), 
+        outputFormatter(vegaSum, False), 
+        outputFormatter(thetaExposureSum, True), 
+        outputFormatter(thetaSum, False), 
+        outputFormatter(PVSum, True)]
 
 def computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
     if s0_tmp is not None and k_tmp is not None and sigma is not None and T_tmp is not None:
@@ -206,20 +216,25 @@ def isNormalID(idToIdentify):
     else:
         return False
 
-def outputFormatter(floatNumber):
+def outputFormatter(floatNumber, isTenThousand):
     stringNumber = str(floatNumber)
-    if len(stringNumber.split(".")[0]) >= 7:
-        floatNumber = round(floatNumber / 1000000, 2)
-        return [floatNumber, "M"]
-    elif len(stringNumber.split(".")[0]) >= 4:
-        floatNumber = round(floatNumber / 1000, 2)
-        return [floatNumber, "K"]
-    elif len(stringNumber.split(".")[0]) == 3:
-        floatNumber = round(floatNumber, 2)
-        return [floatNumber, None]
-    else:
-        floatNumber = round(floatNumber, 4)
-        return [floatNumber, None]
+    if floatNumber is not None:
+        if isTenThousand:
+            if len(stringNumber.split(".")[0]) <= 4:
+                floatNumber = round(floatNumber, 2)
+            else:
+                floatNumber = round(floatNumber, 2)
+        else:
+            floatNumber = round(floatNumber, 4)
+    return floatNumber  #Generally, make the specific numbers / 10000
+
+def listFormatter(floatList, isTenThousand):
+    newList = []
+    for item in floatList:
+        if isTenThousand:
+            item = item / 10000
+        newList.append(outputFormatter(item, isTenThousand))
+    return newList
 
 
 
