@@ -19,8 +19,8 @@ from stress import views as Stress
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('searchById/', Stress.searchById),
-    path('searchByWind/', Stress.searchByWind),
+    path('searchById/', Stress.computation),
+    # path('searchByWind/', Stress.searchByWind),
     path('upload/', Stress.uploadHistory),
     # path('uploadSigma/', Stress.uploadSigma),
     path('createTime/', Stress.createTime),
