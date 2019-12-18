@@ -206,6 +206,21 @@ def isNormalID(idToIdentify):
     else:
         return False
 
+def outputFormatter(floatNumber):
+    stringNumber = str(floatNumber)
+    if len(stringNumber.split(".")[0]) >= 7:
+        floatNumber = round(floatNumber / 1000000, 2)
+        return [floatNumber, "M"]
+    elif len(stringNumber.split(".")[0]) >= 4:
+        floatNumber = round(floatNumber / 1000, 2)
+        return [floatNumber, "K"]
+    elif len(stringNumber.split(".")[0]) == 3:
+        floatNumber = round(floatNumber, 2)
+        return [floatNumber, None]
+    else:
+        floatNumber = round(floatNumber, 4)
+        return [floatNumber, None]
+
 
 
 
