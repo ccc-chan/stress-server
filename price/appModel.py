@@ -14,6 +14,18 @@ from price import pricingModel as pm
 from price import others as others
 from price import riskFreeRate as rate
 
+def getTodayDate():
+    todayPath = os.path.abspath(os.path.join(__file__, "../data.xls"))
+    todayData = pd.read_excel(todayPath, sheet_name="当日交易")
+    try:
+        today = todayData.columns[1]
+        if type(today) == type("string"):
+            today = datetime.strptime(today, '%Y/%m/%d')
+    except:
+        today = datetime.strptime("2019/07/08", '%Y/%m/%d')
+        print("Error occurs while getTodayDate()")
+    return (str(today.year) + "-" + str(today.month) + "-" + str(today.day))
+    
 
 
 def readData():
@@ -221,9 +233,10 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
         others.listFormatter(vega_tmpSet, False),
         others.listFormatter(PVSet, True)]
 
-def getBenchMarkList(data, fromID, IDOrWindID, ratePoints):
-    #data = readData()
-    #data = others.setT(data, today)
+def getBenchMarkList(fromID, IDOrWindID, ratePoints):
+    data = readData()
+    today = getTodayDate()
+    data = others.setT(data, today)
     if fromID:
         [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
         convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp)

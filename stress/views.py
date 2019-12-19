@@ -11,6 +11,10 @@ from price import others as others
 from price import heatMap as heatMap
 # Create your views here.
 
+@csrf_exempt
+def setTodayDate(request):
+  todayDate = model.getTodayDate()
+  return JsonResponse({'todayDate': todayDate})
 
 @csrf_exempt
 def createTime(request):
@@ -75,7 +79,7 @@ def idSearch(query):
   #print(ratePoints)
   data = model.readData()
   data = others.setT(data,today)
-  benchMark = model.getBenchMarkList(data, True, idToFind, ratePoints)
+  benchMark = model.getBenchMarkList(True, idToFind, ratePoints)
   [idBM, priceBM, deltaExposureBM, deltaBM, gammaExposureBM, gammaBM, thetaExposureBM, thetaBM, vegaExposureBM, vegaBM, PVBM] = benchMark
   
   [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = model.getData(data, idToFind, ratePoints, s0Shock, sigmaShock)
@@ -117,7 +121,7 @@ def windIDSearch(query):
   ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, None]
   data = model.readData()
   data = others.setT(data,today)
-  benchMark = model.getBenchMarkList(data, False, windIDToFind, ratePoints)
+  benchMark = model.getBenchMarkList(False, windIDToFind, ratePoints)
   [idSetBM, price_tmpSetBM, deltaExposureSetBM, delta_tmpSetBM, gammaExposureSetBM, gamma_tmpSetBM, thetaExposureSetBM, theta_tmpSetBM, vegaExposureSetBM, vega_tmpSetBM, PVSetBM] = benchMark
   
   [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
