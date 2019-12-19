@@ -82,7 +82,7 @@ def idSearch(query):
   heatMapData = model.getHeatMapData(data, benchMark, chartType, True, idToFind, ratePoints)
   #print(heatMapData)
   #print(sumUpList)
-
+  print(benchMark)
   result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData, 'benchMark': benchMark}
   return JsonResponse(json.dumps(result), safe=False)
 
