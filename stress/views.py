@@ -88,23 +88,18 @@ def idSearch(query):
   [idSum, priceSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, thetaExposureSum, thetaSum, vegaExposureSum, vegaSum, PVSum] = sumUpList
   
   ###Change the positions of views only!
-  newBenchMark = [idBM, PVBM, deltaExposureBM, deltaBM, gammaExposureBM, gammaBM, thetaExposureBM, thetaBM, vegaExposureBM, vegaBM, priceBM]
+  newBenchMark = [idBM, PVBM, deltaExposureBM, deltaBM, gammaExposureBM, gammaBM, thetaExposureBM, thetaBM, vegaExposureBM, vegaBM, priceBM] #idBM here is today's date.
 
   findResult = [id_tmp, PV_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, price_tmp]
   
-  newSumUpList = [idSum, PVSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, thetaExposureSum, thetaSum, vegaExposureSum, vegaSum, priceSum]
+  newSumUpList = [idSum, PVSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, thetaExposureSum, thetaSum, vegaExposureSum, vegaSum, priceSum]  #idSum here is None.
 
   heatMapData = model.getHeatMapData(data, benchMark, chartType, True, idToFind, ratePoints)
   
   #print(heatMapData)
   #print(sumUpList)
-<<<<<<< HEAD
-  print(benchMark)
-  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData, 'benchMark': benchMark}
-=======
 
   result = {'data':findResult, 'sum': newSumUpList, 'heatMap': heatMapData, 'benchMark': newBenchMark}
->>>>>>> 6dcda37b7c33178d940d7a75486c7be4a6258f0d
   return JsonResponse(json.dumps(result), safe=False)
 
 
