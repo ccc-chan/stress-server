@@ -76,14 +76,26 @@ def idSearch(query):
   data = model.readData()
   data = others.setT(data,today)
   benchMark = model.getBenchMarkList(data, True, idToFind, ratePoints)
+  [idBM, priceBM, deltaExposureBM, deltaBM, gammaExposureBM, gammaBM, thetaExposureBM, thetaBM, vegaExposureBM, vegaBM, PVBM] = benchMark
+  
   [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = model.getData(data, idToFind, ratePoints, s0Shock, sigmaShock)
-  findResult = [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp]
+  
   sumUpList = others.sumUpEachList(others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp))
+  [idSum, priceSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, thetaExposureSum, thetaSum, vegaExposureSum, vegaSum, PVSum] = sumUpList
+  
+  ###Change the positions of views only!
+  newBenchMark = [idBM, PVBM, deltaExposureBM, deltaBM, gammaExposureBM, gammaBM, thetaExposureBM, thetaBM, vegaExposureBM, vegaBM, priceBM]
+
+  findResult = [id_tmp, PV_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, price_tmp]
+  
+  newSumUpList = [idSum, PVSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, thetaExposureSum, thetaSum, vegaExposureSum, vegaSum, priceSum]
+
   heatMapData = model.getHeatMapData(data, benchMark, chartType, True, idToFind, ratePoints)
+  
   #print(heatMapData)
   #print(sumUpList)
 
-  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData, 'benchMark': benchMark}
+  result = {'data':findResult, 'sum': newSumUpList, 'heatMap': heatMapData, 'benchMark': newBenchMark}
   return JsonResponse(json.dumps(result), safe=False)
 
 
@@ -106,14 +118,25 @@ def windIDSearch(query):
   data = model.readData()
   data = others.setT(data,today)
   benchMark = model.getBenchMarkList(data, False, windIDToFind, ratePoints)
+  [idSetBM, price_tmpSetBM, deltaExposureSetBM, delta_tmpSetBM, gammaExposureSetBM, gamma_tmpSetBM, thetaExposureSetBM, theta_tmpSetBM, vegaExposureSetBM, vega_tmpSetBM, PVSetBM] = benchMark
+  
   [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
-  findResult = [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet]
+
   sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet))
+  [idSetSum, price_tmpSetSum, deltaExposureSetSum, delta_tmpSetSum, gammaExposureSetSum, gamma_tmpSetSum, thetaExposureSetSum, theta_tmpSetSum, vegaExposureSetSum, vega_tmpSetSum, PVSetSum] = sumUpList
+
+  ###Change the positions
+  newBenchMark = [idSetBM, PVSetBM, deltaExposureSetBM, delta_tmpSetBM, gammaExposureSetBM, gamma_tmpSetBM, thetaExposureSetBM, theta_tmpSetBM, vegaExposureSetBM, vega_tmpSetBM, price_tmpSetBM]
+
+  findResult = [idSet, PVSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, price_tmpSet]
+
+  newSumUpList = [idSetSum, PVSetSum, deltaExposureSetSum, delta_tmpSetSum, gammaExposureSetSum, gamma_tmpSetSum, thetaExposureSetSum, theta_tmpSetSum, vegaExposureSetSum, vega_tmpSetSum, price_tmpSetSum]
+
   heatMapData = model.getHeatMapData(data, benchMark, chartType, False, windIDToFind, ratePoints)
+  
   #print("findResult", findResult)
 
-
-  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData, 'benchMark': benchMark}
+  result = {'data':findResult, 'sum': newSumUpList, 'heatMap': heatMapData, 'benchMark': newBenchMark}
   return JsonResponse(json.dumps(result), safe=False)
 
 

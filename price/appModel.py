@@ -222,6 +222,8 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
         others.listFormatter(PVSet, True)]
 
 def getBenchMarkList(data, fromID, IDOrWindID, ratePoints):
+    #data = readData()
+    #data = others.setT(data, today)
     if fromID:
         [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
         convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp)
