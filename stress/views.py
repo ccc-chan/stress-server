@@ -83,7 +83,7 @@ def idSearch(query):
   #print(heatMapData)
   #print(sumUpList)
 
-  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData}
+  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData, 'benchMark': benchMark}
   return JsonResponse(json.dumps(result), safe=False)
 
 
@@ -113,7 +113,7 @@ def windIDSearch(query):
   #print("findResult", findResult)
 
 
-  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData}
+  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData, 'benchMark': benchMark}
   return JsonResponse(json.dumps(result), safe=False)
 
 
