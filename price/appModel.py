@@ -129,12 +129,12 @@ def getData(data, idToFind, ratePoints, s0Shock, sigmaShock):
         quantity = data["quantity"][indexToFind]
         buy = data["buy"][indexToFind]
         #computePrice(data, dataType, indexToFind, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
-        [price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp] = others.computePrice(data, dataType, indexToFind, 0, s0IsOne, rf, dt, s0Shock, sigmaShock)  
+        [price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp] = others.computePrice(data, dataType, indexToFind, 0, s0IsOne, rf, dt, s0Shock, sigmaShock)
         
         if price_tmp is not None and dataType != "BCALL":
             price_tmp = round(price_tmp / data["startingPrice"][indexToFind], 10)
             
-        [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp] = others.greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp)
+        [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = others.greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp)
 
         if PV_tmp is not None:
             PV_tmp = round(PV_tmp * data["startingPrice"][indexToFind], 10) ##don't forget here.
@@ -144,7 +144,7 @@ def getData(data, idToFind, ratePoints, s0Shock, sigmaShock):
         quantity = None
         buy = None
         #[price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp] = [None, None, None, None, None]
-        [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp] = [None, None, None, None, None, None, None, None, None, None, None, None]
+        [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = [None, None, None, None, None, None, None, None, None, None, None, None]
     
     #no quantity
     return [[idToFind], 
@@ -153,10 +153,10 @@ def getData(data, idToFind, ratePoints, s0Shock, sigmaShock):
         others.listFormatter([delta_tmp], False), 
         others.listFormatter([gammaExposure], True), 
         others.listFormatter([gamma_tmp], False), 
-        others.listFormatter([vegaExposure], True),
-        others.listFormatter([vega_tmp], False),
         others.listFormatter([thetaExposure], True),
         others.listFormatter([theta_tmp], False),
+        others.listFormatter([vegaExposure], True),
+        others.listFormatter([vega_tmp], False),
         others.listFormatter([PV_tmp], True)]
 
 def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
@@ -191,7 +191,7 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
         if price_tmp is not None and dataType != "BCALL":
             price_tmp = round(price_tmp / data["startingPrice"][indexToFind], 10) 
         
-        [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp] = others.greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp)
+        [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = others.greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp)
 
         if PV_tmp is not None:
             PV_tmp = round(PV_tmp * data["startingPrice"][indexToFind], 10)
@@ -202,10 +202,10 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
             delta_tmpSet.append(delta_tmp)
             gammaExposureSet.append(gammaExposure)
             gamma_tmpSet.append(gamma_tmp)
-            vegaExposureSet.append(vegaExposure)
-            vega_tmpSet.append(vega_tmp)
             thetaExposureSet.append(thetaExposure)
             theta_tmpSet.append(theta_tmp)
+            vegaExposureSet.append(vegaExposure)
+            vega_tmpSet.append(vega_tmp)
             PVSet.append(PV_tmp)
             idSet.append(idToFind)
         
@@ -215,13 +215,25 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
         others.listFormatter(delta_tmpSet, False), 
         others.listFormatter(gammaExposureSet, True), 
         others.listFormatter(gamma_tmpSet, False), 
-        others.listFormatter(vegaExposureSet, True),
-        others.listFormatter(vega_tmpSet, False),
         others.listFormatter(thetaExposureSet, True),
         others.listFormatter(theta_tmpSet, False),
+        others.listFormatter(vegaExposureSet, True),
+        others.listFormatter(vega_tmpSet, False),
         others.listFormatter(PVSet, True)]
 
-def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
+def getBenchMarkList(data, fromID, IDOrWindID, ratePoints):
+    if fromID:
+        [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
+        convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp)
+        benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
+    else:
+        [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithWindID(data, IDOrWindID, ratePoints, 1, 1)
+        convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
+        benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
+    return benchMark
+
+
+def getHeatMapData(data, benchMark, printType, fromID, IDOrWindID, ratePoints):
         if printType == "Price":
             indexChosen = 1
         elif printType == "Delta":
@@ -232,52 +244,46 @@ def getHeatMapData(data, printType, fromID, IDOrWindID, ratePoints):
             indexChosen = 4
         elif printType == "Gamma_Pct":
             indexChosen = 5
-        elif printType == "Vega":
-            indexChosen = 6
-        elif printType == "Vega_Pct":
-            indexChosen = 7
         elif printType == "Theta":
-            indexChosen = 8
+            indexChosen = 6
         elif printType == "Theta_Pct":
+            indexChosen = 7
+        elif printType == "Vega":
+            indexChosen = 8
+        elif printType == "Vega_Pct":
             indexChosen = 9
         elif printType == "PV":
             indexChosen = 10
         else:
-            indexChosen = 0
+            indexChosen = 101
 
         if fromID is True:
             differenceList = []
-            [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
-            convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp)
-            benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
-
             heatMapDataSet = []
             for y in range(0,11):
                 for x in range(0,11):
                     # print(y,x)
                     sigmaShock = 0.95 + y * 0.01
                     s0Shock = 0.95 + x * 0.01
-                    [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
-                    convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV_tmp)
-                    difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen] #take care of the 0 case...
+                    [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
+                    convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp)
+                    difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen] #take care of the 101 case...
+                    difference = others.outputFormatter(difference, (indexChosen % 2 == 0))
                     differenceList.append(difference)
                     box = [y, x, difference]
                     heatMapDataSet.append(box)
         else:
             differenceList = []
-            [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet] = getDataWithWindID(data, IDOrWindID, ratePoints, 1, 1)
-            convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet)
-            benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
-
             heatMapDataSet = []
             for y in range(0,11):
                 for x in range(0,11):
                     # print(y,x)
                     sigmaShock = 0.95 + y * 0.01
                     s0Shock = 0.95 + x * 0.01
-                    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet] = getDataWithWindID(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
-                    convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet)
+                    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithWindID(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
+                    convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
                     difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen]
+                    difference = others.outputFormatter(difference, (indexChosen % 2 == 0))
                     differenceList.append(difference)
                     box = [y, x, difference]
                     heatMapDataSet.append(box)

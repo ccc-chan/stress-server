@@ -45,7 +45,7 @@ def computePrice(data, dataType, indexToFind, timeShift, s0IsOne, rf, dt, s0Shoc
         
     return [price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp]
 
-
+#Switch theta & vega positions here.
 def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp):
     
     if quantity is not None and delta_tmp is not None and st is not None:
@@ -143,9 +143,10 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
             PV = -1 * PV
     
     idToFind = data["AGGREGATION BUNDLE"][indexToFind]
-    return [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, vegaExposure, vega_tmp, thetaExposure, theta_tmp, PV]
+    #Up to here, theta then vega only
+    return [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV]
 
-def convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet):
+def convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet):
     dataExport = [] #fixed format
     dataExport.append(idSet)
     dataExport.append(price_tmpSet)
@@ -153,10 +154,10 @@ def convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExp
     dataExport.append(delta_tmpSet)
     dataExport.append(gammaExposureSet)
     dataExport.append(gamma_tmpSet)
-    dataExport.append(vegaExposureSet)
-    dataExport.append(vega_tmpSet)
     dataExport.append(thetaExposureSet)
     dataExport.append(theta_tmpSet)
+    dataExport.append(vegaExposureSet)
+    dataExport.append(vega_tmpSet)
     dataExport.append(PVSet)
     return dataExport
 
@@ -164,16 +165,16 @@ def extractDataSet(dataExport):
     return [dataExport[0], dataExport[1], dataExport[2], dataExport[3], dataExport[4], dataExport[5], dataExport[6], dataExport[7], dataExport[8], dataExport[9], dataExport[10]]
     
 def sumUpEachList(dataExport):
-    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, vegaExposureSet, vega_tmpSet, thetaExposureSet, theta_tmpSet, PVSet] = extractDataSet(dataExport)
+    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = extractDataSet(dataExport)
     priceSum = 0.0
     deltaExposureSum = 0.0
     deltaSum = 0.0
     gammaExposureSum = 0.0
     gammaSum = 0.0
-    vegaExposureSum = 0.0
-    vegaSum = 0.0
     thetaExposureSum = 0.0
     thetaSum = 0.0
+    vegaExposureSum = 0.0
+    vegaSum = 0.0
     PVSum = 0.0
     
     for i in range(len(idSet)):
@@ -183,10 +184,10 @@ def sumUpEachList(dataExport):
             deltaSum = deltaSum + delta_tmpSet[i]
             gammaExposureSum = gammaExposureSum + gammaExposureSet[i]
             gammaSum = gammaSum + gamma_tmpSet[i]
-            vegaExposureSum = vegaExposureSum + vegaExposureSet[i]
-            vegaSum = vegaSum + vega_tmpSet[i]
             thetaExposureSum = thetaExposureSum + thetaExposureSet[i]
             thetaSum = thetaSum + theta_tmpSet[i]
+            vegaExposureSum = vegaExposureSum + vegaExposureSet[i]
+            vegaSum = vegaSum + vega_tmpSet[i]
             PVSum = PVSum + PVSet[i]
  
     return [None, 
@@ -195,10 +196,10 @@ def sumUpEachList(dataExport):
         outputFormatter(deltaSum, False), 
         outputFormatter(gammaExposureSum, True), 
         outputFormatter(gammaSum, False), 
-        outputFormatter(vegaExposureSum, True), 
-        outputFormatter(vegaSum, False), 
         outputFormatter(thetaExposureSum, True), 
         outputFormatter(thetaSum, False), 
+        outputFormatter(vegaExposureSum, True), 
+        outputFormatter(vegaSum, False), 
         outputFormatter(PVSum, True)]
 
 def computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
@@ -226,12 +227,12 @@ def outputFormatter(floatNumber, isTenThousand):
                 floatNumber = round(floatNumber, 2)
         else:
             floatNumber = round(floatNumber, 4)
-    return floatNumber  #Generally, make the specific numbers / 10000
+    return floatNumber
 
 def listFormatter(floatList, isTenThousand):
     newList = []
     for item in floatList:
-        if isTenThousand:
+        if isTenThousand and item is not None:
             item = item / 10000
         newList.append(outputFormatter(item, isTenThousand))
     return newList
