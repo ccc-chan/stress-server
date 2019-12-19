@@ -98,8 +98,13 @@ def idSearch(query):
   
   #print(heatMapData)
   #print(sumUpList)
+<<<<<<< HEAD
+  print(benchMark)
+  result = {'data':findResult, 'sum': sumUpList, 'heatMap': heatMapData, 'benchMark': benchMark}
+=======
 
   result = {'data':findResult, 'sum': newSumUpList, 'heatMap': heatMapData, 'benchMark': newBenchMark}
+>>>>>>> 6dcda37b7c33178d940d7a75486c7be4a6258f0d
   return JsonResponse(json.dumps(result), safe=False)
 
 
