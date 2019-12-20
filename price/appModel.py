@@ -16,17 +16,16 @@ from price import riskFreeRate as rate
 
 def getTodayDate():
     todayPath = os.path.abspath(os.path.join(__file__, "../data.xls"))
-    todayData = pd.read_excel(todayPath, sheet_name="当日交易")
     try:
+        todayData = pd.read_excel(todayPath, sheet_name="当日交易")
         today = todayData.columns[1]
         if type(today) == type("string"):
             today = datetime.strptime(today, '%Y/%m/%d')
     except:
-        today = datetime.strptime("2019/07/08", '%Y/%m/%d')
+        today = datetime.strptime("2017/07/01", '%Y/%m/%d')
         print("Error occurs while getTodayDate()")
     return (str(today.year) + "-" + str(today.month) + "-" + str(today.day))
     
-
 
 def readData():
     sigmaDataPath = os.path.abspath(os.path.join(__file__, "../data.xls"))
@@ -125,57 +124,30 @@ def readData():
      #up to here, None only, no "None"
     return data
 
-def getData(data, idToFind, ratePoints, s0Shock, sigmaShock):
+def searchForIndexSet(data, inputSearch):
+    inputSet = inputSearch.split(",")
+    indexSet = []
+    for inputString in inputSet:
+        inputString = inputString.strip()
+        if len(inputString) == 8 and inputString.isdigit():
+            for element in data[data["AGGREGATION BUNDLE"] == inputString].index:
+                indexSet.append(element)
+        else:
+            for element in data[data["WIND代码"] == inputString].index:
+                indexSet.append(element)
+            for element in data[data["Internal Reference"] == inputString].index:
+                indexSet.append(element)
+    removedDuplicateSet = []
+    for index in indexSet:
+        if index not in removedDuplicateSet:
+            removedDuplicateSet.append(index)
+    return removedDuplicateSet
+
+def getDataWithSearch(data, inputSearch, ratePoints, s0Shock, sigmaShock):
     s0Shock = float(s0Shock)
     sigmaShock = float(sigmaShock)
     
-    if len(data[data["AGGREGATION BUNDLE"] == idToFind].index) != 0:
-        indexToFind = (data[data["AGGREGATION BUNDLE"] == idToFind].index)[0]
-        dataType = data["类型"][indexToFind]
-        s0IsOne = False  ############
-        T = data["T"][indexToFind]
-        rf = rate.getRiskFreeRate(T, ratePoints)
-        dt = 1/365
-        
-        st = data["s0"][indexToFind]
-        quantity = data["quantity"][indexToFind]
-        buy = data["buy"][indexToFind]
-        #computePrice(data, dataType, indexToFind, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock)
-        [price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp] = others.computePrice(data, dataType, indexToFind, 0, s0IsOne, rf, dt, s0Shock, sigmaShock)
-        
-        if price_tmp is not None and dataType != "BCALL":
-            price_tmp = round(price_tmp / data["startingPrice"][indexToFind], 10)
-            
-        [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = others.greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp)
-
-        if PV_tmp is not None:
-            PV_tmp = round(PV_tmp * data["startingPrice"][indexToFind], 10) ##don't forget here.
-    
-    else:
-        st = None
-        quantity = None
-        buy = None
-        #[price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp] = [None, None, None, None, None]
-        [idToFind, quantity, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = [None, None, None, None, None, None, None, None, None, None, None, None]
-    
-    #no quantity
-    return [[idToFind], 
-        others.listFormatter([price_tmp], False), 
-        others.listFormatter([deltaExposure], True), 
-        others.listFormatter([delta_tmp], False), 
-        others.listFormatter([gammaExposure], True), 
-        others.listFormatter([gamma_tmp], False), 
-        others.listFormatter([thetaExposure], True),
-        others.listFormatter([theta_tmp], False),
-        others.listFormatter([vegaExposure], True),
-        others.listFormatter([vega_tmp], False),
-        others.listFormatter([PV_tmp], True)]
-
-def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
-    s0Shock = float(s0Shock)
-    sigmaShock = float(sigmaShock)
-    
-    indexSet = (data[data["WIND代码"] == windID].index)
+    indexSet = searchForIndexSet(data, inputSearch)
     price_tmpSet = []
     deltaExposureSet = []
     delta_tmpSet = []
@@ -233,24 +205,18 @@ def getDataWithWindID(data, windID, ratePoints, s0Shock, sigmaShock):
         others.listFormatter(vega_tmpSet, False),
         others.listFormatter(PVSet, True)]
 
-def getBenchMarkList(fromID, IDOrWindID, ratePoints):
+def getBenchMarkList(fromID, inputSearch, ratePoints):
     data = readData()
     today = getTodayDate()
     data = others.setT(data, today)
-    if fromID:
-        [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, 1, 1)
-        convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp)
-        benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
-        benchMark[0] = today #Set the ID to be today's string
-    else:
-        [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithWindID(data, IDOrWindID, ratePoints, 1, 1)
-        convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
-        benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
-        benchMark[0] = today #Set the ID to be today's string
+    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithSearch(data, inputSearch, ratePoints, 1, 1)
+    convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
+    benchMark = others.sumUpEachList(convertedData) #it is a benchmark list
+    benchMark[0] = today #Set the ID to be today's string
     return benchMark
 
 
-def getHeatMapData(data, benchMark, printType, fromID, IDOrWindID, ratePoints):
+def getHeatMapData(data, benchMark, printType, inputSearch, ratePoints):
         if printType == "Price":
             indexChosen = 1
         elif printType == "Delta":
@@ -274,36 +240,20 @@ def getHeatMapData(data, benchMark, printType, fromID, IDOrWindID, ratePoints):
         else:
             indexChosen = 101
 
-        if fromID is True:
-            differenceList = []
-            heatMapDataSet = []
-            for y in range(0,11):
-                for x in range(0,11):
-                    # print(y,x)
-                    sigmaShock = 0.95 + y * 0.01
-                    s0Shock = 0.95 + x * 0.01
-                    [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = getData(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
-                    convertedData = others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp)
-                    difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen] #take care of the 101 case...
-                    difference = others.outputFormatter(difference, (indexChosen % 2 == 0))
-                    differenceList.append(difference)
-                    box = [y, x, difference]
-                    heatMapDataSet.append(box)
-        else:
-            differenceList = []
-            heatMapDataSet = []
-            for y in range(0,11):
-                for x in range(0,11):
-                    # print(y,x)
-                    sigmaShock = 0.95 + y * 0.01
-                    s0Shock = 0.95 + x * 0.01
-                    [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithWindID(data, IDOrWindID, ratePoints, s0Shock, sigmaShock)
-                    convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
-                    difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen]
-                    difference = others.outputFormatter(difference, (indexChosen % 2 == 0))
-                    differenceList.append(difference)
-                    box = [y, x, difference]
-                    heatMapDataSet.append(box)
+        differenceList = []
+        heatMapDataSet = []
+        for y in range(0,11):
+            for x in range(0,11):
+                # print(y,x)
+                sigmaShock = 0.95 + y * 0.01
+                s0Shock = 0.95 + x * 0.01
+                [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithSearch(data, inputSearch, ratePoints, s0Shock, sigmaShock)
+                convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
+                difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen]
+                difference = others.outputFormatter(difference, (indexChosen % 2 == 0))
+                differenceList.append(difference)
+                box = [y, x, difference]
+                heatMapDataSet.append(box)
 
         return [heatMapDataSet, max(differenceList), min(differenceList)]
 

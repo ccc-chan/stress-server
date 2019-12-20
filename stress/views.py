@@ -54,57 +54,10 @@ def computation(request):
   #params = request.body
   #print(params)
   query = json.loads(request.body)['query']
-  idToFind = query['ID']
-  if others.isNormalID(idToFind):
-    return idSearch(query)
-  else:
-    return windIDSearch(query)
+  return iDSearch(query)
 
-def idSearch(query):
-  idToFind = query['ID']
-  today = query['timeShift']
-  s0Shock = query['price_bump']
-  sigmaShock = query['volatility_bump']
-  chartType = query['type']
-
-  om = float(query['OM'])
-  tm = float(query['TM'])
-  sm = float(query['SM'])
-  nm = float(query['NM'])
-  oy = float(query['OY'])
-  sy = float(query['SY'])
-  ty = float(query['TY'])
-  fy = float(query['FY'])
-  ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, None]
-  #print(ratePoints)
-  data = model.readData()
-  data = others.setT(data,today)
-  benchMark = model.getBenchMarkList(True, idToFind, ratePoints)
-  [idBM, priceBM, deltaExposureBM, deltaBM, gammaExposureBM, gammaBM, thetaExposureBM, thetaBM, vegaExposureBM, vegaBM, PVBM] = benchMark
-  
-  [id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp] = model.getData(data, idToFind, ratePoints, s0Shock, sigmaShock)
-  
-  sumUpList = others.sumUpEachList(others.convertDataSet(id_tmp, price_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, PV_tmp))
-  [idSum, priceSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, thetaExposureSum, thetaSum, vegaExposureSum, vegaSum, PVSum] = sumUpList
-  
-  ###Change the positions of views only!
-  newBenchMark = [idBM, PVBM, deltaExposureBM, deltaBM, gammaExposureBM, gammaBM, thetaExposureBM, thetaBM, vegaExposureBM, vegaBM, priceBM] #idBM here is today's date.
-
-  findResult = [id_tmp, PV_tmp, deltaExposure, delta_tmp, gammaExposure, gamma_tmp, thetaExposure, theta_tmp, vegaExposure, vega_tmp, price_tmp]
-  
-  newSumUpList = [idSum, PVSum, deltaExposureSum, deltaSum, gammaExposureSum, gammaSum, thetaExposureSum, thetaSum, vegaExposureSum, vegaSum, priceSum]  #idSum here is None.
-
-  heatMapData = model.getHeatMapData(data, benchMark, chartType, True, idToFind, ratePoints)
-  
-  #print(heatMapData)
-  #print(sumUpList)
-
-  result = {'data':findResult, 'sum': newSumUpList, 'heatMap': heatMapData, 'benchMark': newBenchMark}
-  return JsonResponse(json.dumps(result), safe=False)
-
-
-def windIDSearch(query):
-  windIDToFind = query['ID']
+def iDSearch(query):
+  inputSearch = query['ID']
   today = query['timeShift']
   s0Shock = query['price_bump']
   sigmaShock = query['volatility_bump']
@@ -121,10 +74,10 @@ def windIDSearch(query):
   ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, None]
   data = model.readData()
   data = others.setT(data,today)
-  benchMark = model.getBenchMarkList(False, windIDToFind, ratePoints)
+  benchMark = model.getBenchMarkList(False, inputSearch, ratePoints)
   [idSetBM, price_tmpSetBM, deltaExposureSetBM, delta_tmpSetBM, gammaExposureSetBM, gamma_tmpSetBM, thetaExposureSetBM, theta_tmpSetBM, vegaExposureSetBM, vega_tmpSetBM, PVSetBM] = benchMark
   
-  [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithWindID(data, windIDToFind, ratePoints, s0Shock, sigmaShock)
+  [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithSearch(data, inputSearch, ratePoints, s0Shock, sigmaShock)
 
   sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet))
   [idSetSum, price_tmpSetSum, deltaExposureSetSum, delta_tmpSetSum, gammaExposureSetSum, gamma_tmpSetSum, thetaExposureSetSum, theta_tmpSetSum, vegaExposureSetSum, vega_tmpSetSum, PVSetSum] = sumUpList
@@ -136,37 +89,10 @@ def windIDSearch(query):
 
   newSumUpList = [idSetSum, PVSetSum, deltaExposureSetSum, delta_tmpSetSum, gammaExposureSetSum, gamma_tmpSetSum, thetaExposureSetSum, theta_tmpSetSum, vegaExposureSetSum, vega_tmpSetSum, price_tmpSetSum]
 
-  heatMapData = model.getHeatMapData(data, benchMark, chartType, False, windIDToFind, ratePoints)
+  heatMapData = model.getHeatMapData(data, benchMark, chartType, inputSearch, ratePoints)
   
   #print("findResult", findResult)
 
   result = {'data':findResult, 'sum': newSumUpList, 'heatMap': heatMapData, 'benchMark': newBenchMark}
   return JsonResponse(json.dumps(result), safe=False)
-
-
-
-# @csrf_exempt
-# def selectChart(request): 
-#   params = request.body
-#   print(params)
-#   query = json.loads(request.body)['query']
-#   windIDToFind = query['contract_name']
-#   today = query['timeShift']
-#   chartType = query['type']
-
-#   om = float(query['OM'])
-#   tm = float(query['TM'])
-#   sm = float(query['SM'])
-#   nm = float(query['NM'])
-#   oy = float(query['OY'])
-#   sy = float(query['SY'])
-#   ty = float(query['TY'])
-#   fy = float(query['FY'])
-#   hy = float(query['HY'])
-#   ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, hy]
-#   data = model.readData()
-#   data = others.setT(data,today)
-#   heatMapData = model.getHeatMapData(data, chartType, False, windIDToFind, ratePoints)
-#   # result = {'heatMap:': heatMapData}
-#   return JsonResponse(json.dumps(heatMapData), safe=False)
 
