@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from multiprocessing import Pool, Manager
 from numpy import sqrt, pi, exp, log, array, linspace
 import matplotlib.pyplot as plt
 from scipy import integrate
@@ -13,6 +14,7 @@ from datetime import datetime, timedelta
 from price import pricingModel as pm
 from price import others as others
 from price import riskFreeRate as rate
+from price import getDataBoosted
 
 def getTodayDate():
     todayPath = os.path.abspath(os.path.join(__file__, "../data.xls"))
@@ -215,47 +217,71 @@ def getBenchMarkList(fromID, inputSearch, ratePoints):
     benchMark[0] = today #Set the ID to be today's string
     return benchMark
 
-
 def getHeatMapData(data, benchMark, printType, inputSearch, ratePoints):
-        if printType == "Price":
-            indexChosen = 1
-        elif printType == "Delta":
-            indexChosen = 2
-        elif printType == "Delta_Pct":
-            indexChosen = 3
-        elif printType == "Gamma":
-            indexChosen = 4
-        elif printType == "Gamma_Pct":
-            indexChosen = 5
-        elif printType == "Theta":
-            indexChosen = 6
-        elif printType == "Theta_Pct":
-            indexChosen = 7
-        elif printType == "Vega":
-            indexChosen = 8
-        elif printType == "Vega_Pct":
-            indexChosen = 9
-        elif printType == "PV":
-            indexChosen = 10
-        else:
-            indexChosen = 101
+    if printType == "Price":
+        indexChosen = 1
+    elif printType == "Delta":
+        indexChosen = 2
+    elif printType == "Delta_Pct":
+        indexChosen = 3
+    elif printType == "Gamma":
+        indexChosen = 4
+    elif printType == "Gamma_Pct":
+        indexChosen = 5
+    elif printType == "Theta":
+        indexChosen = 6
+    elif printType == "Theta_Pct":
+        indexChosen = 7
+    elif printType == "Vega":
+        indexChosen = 8
+    elif printType == "Vega_Pct":
+        indexChosen = 9
+    elif printType == "PV":
+        indexChosen = 10
+    else:
+        indexChosen = 101
 
-        differenceList = []
-        heatMapDataSet = []
+    differenceList = []
+    heatMapDataSet = []
+
+    if __name__ == "price.appModel": ######################
+        manager = Manager()
+        return_dict = manager.dict()
+        pool = Pool(os.cpu_count())
+        sigmaShockList = []
+        s0ShockList = []
+        
         for y in range(0,11):
             for x in range(0,11):
                 # print(y,x)
-                sigmaShock = 0.95 + y * 0.01
-                s0Shock = 0.95 + x * 0.01
-                [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = getDataWithSearch(data, inputSearch, ratePoints, s0Shock, sigmaShock)
-                convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
-                difference = others.sumUpEachList(convertedData)[indexChosen] - benchMark[indexChosen]
+                sigmaShockList.append(0.95 + y * 0.01)
+                s0ShockList.append(0.95 + x * 0.01)
+
+        for i in range(121):
+            pool.apply_async(getDataBoosted.getDataBoosted, (i, data, inputSearch, ratePoints, s0ShockList[i], sigmaShockList[i], return_dict,))
+        
+        pool.close()
+        pool.join()
+        pool.terminate()
+
+        i = -1
+        for y in range(0,11):
+            for x in range(0,11):
+                i = i + 1
+                difference = others.sumUpEachList(return_dict[i])[indexChosen] - benchMark[indexChosen]
                 difference = others.outputFormatter(difference, (indexChosen % 2 == 0))
                 differenceList.append(difference)
                 box = [y, x, difference]
                 heatMapDataSet.append(box)
 
         return [heatMapDataSet, max(differenceList), min(differenceList)]
+    
+    else:
+        print("Process Error!!!")
+        return [[], 0, 0]
+
+
+
 
 """
 def exportWholeExcel():
