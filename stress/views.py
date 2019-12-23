@@ -57,6 +57,9 @@ def computation(request):
   return iDSearch(query)
 
 def iDSearch(query):
+  #######
+  print("Start", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+  
   inputSearch = query['ID']
   today = query['timeShift']
   s0Shock = query['price_bump']
@@ -74,13 +77,22 @@ def iDSearch(query):
   ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, None]
   data = model.readData()
   data = others.setT(data,today)
+  #######
+  print("Read Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
   benchMark = model.getBenchMarkList(False, inputSearch, ratePoints)
   [idSetBM, price_tmpSetBM, deltaExposureSetBM, delta_tmpSetBM, gammaExposureSetBM, gamma_tmpSetBM, thetaExposureSetBM, theta_tmpSetBM, vegaExposureSetBM, vega_tmpSetBM, PVSetBM] = benchMark
   
+  #######
+  print("BenchMark Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
   [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithSearch(data, inputSearch, ratePoints, s0Shock, sigmaShock)
 
+  #######
+  print("getData Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
   sumUpList = others.sumUpEachList(others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet))
   [idSetSum, price_tmpSetSum, deltaExposureSetSum, delta_tmpSetSum, gammaExposureSetSum, gamma_tmpSetSum, thetaExposureSetSum, theta_tmpSetSum, vegaExposureSetSum, vega_tmpSetSum, PVSetSum] = sumUpList
+
+  #######
+  print("SumUp Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
   ###Change the positions
   newBenchMark = [idSetBM, PVSetBM, deltaExposureSetBM, delta_tmpSetBM, gammaExposureSetBM, gamma_tmpSetBM, thetaExposureSetBM, theta_tmpSetBM, vegaExposureSetBM, vega_tmpSetBM, price_tmpSetBM]
@@ -90,6 +102,8 @@ def iDSearch(query):
   newSumUpList = [idSetSum, PVSetSum, deltaExposureSetSum, delta_tmpSetSum, gammaExposureSetSum, gamma_tmpSetSum, thetaExposureSetSum, theta_tmpSetSum, vegaExposureSetSum, vega_tmpSetSum, price_tmpSetSum]
 
   heatMapData = model.getHeatMapData(data, benchMark, chartType, inputSearch, ratePoints)
+  ######
+  print("Plot Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
   
   #print("findResult", findResult)
 
