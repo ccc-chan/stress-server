@@ -139,7 +139,8 @@ def searchForIndexSet(data, inputSearch):
             for element in data[data["WIND代码"] == inputString].index:
                 indexSet.append(element)
             for element in data[data["Internal Reference"] == inputString].index:
-                indexSet.append(element)
+                if data["Book"][element] == "GFS 广发-股销-股销1-客户":
+                    indexSet.append(element)
     removedDuplicateSet = []
     for index in indexSet:
         if index not in removedDuplicateSet:
