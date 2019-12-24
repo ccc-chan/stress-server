@@ -12,5 +12,5 @@ from price import others as others
 def getDataBoosted(i, data, inputSearch, ratePoints, s0Shock, sigmaShock, return_dict):
     [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithSearch(data, inputSearch, ratePoints, s0Shock, sigmaShock)
     convertedData = others.convertDataSet(idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet)
-    print(os.getpid())
+    #print(os.getpid())
     return_dict[i] = convertedData
