@@ -259,9 +259,6 @@ def getHeatMapData(data, benchMark, printType, inputSearch, ratePoints):
                 sigmaShockList.append(0.95 + y * 0.01)
                 s0ShockList.append(0.95 + x * 0.01)
 
-        #######
-        #print("Boost Started", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-
         for i in range(121):
             pool.apply_async(getDataBoosted.getDataBoosted, (i, data, inputSearch, ratePoints, s0ShockList[i], sigmaShockList[i], return_dict,))
             #print(i)
@@ -269,9 +266,6 @@ def getHeatMapData(data, benchMark, printType, inputSearch, ratePoints):
         pool.close()
         pool.join()
         pool.terminate()
-
-        #######
-        #print("Boost Ended", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
         i = -1
         for y in range(0,11):
