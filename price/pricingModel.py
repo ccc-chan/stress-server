@@ -138,7 +138,8 @@ def computeBCallData(bcallData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaSho
     return [price_tmp, delta_tmp, gamma_tmp, vega_tmp, theta_tmp]
 
 
-
+##############
+###Fix me: Different Greeks Rule Here!
 def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
     k_tmp, s0_tmp, T_tmp, barrier_tmp, rebate_tmp, sigma, amplifier, windID = uocData.loc[i, ["k", "s0", "T", "上障碍价格", "Option Rebate", "sigma", "合同参与率", "WIND代码"]]
     if windID[-2:] == "SH" or windID[-2:] == "SZ":
@@ -163,24 +164,24 @@ def computeUOCData(uocData, i, timeShift, s0IsOne, rf, dt, s0Shock, sigmaShock):
         price_tmp = p_tmp
         #Note: uoc(rebate * s0 / s0) * s0
 
-        pBoost_tmp = opf2.uoc(s0_tmp*1.01, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
-        pShrink_tmp = opf2.uoc(s0_tmp*0.99, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.uoc(s0_tmp*1.0001, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
+        pShrink_tmp = opf2.uoc(s0_tmp*0.9999, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp, dt, q) * a
         
-        delta_tmp = ((pBoost_tmp - pShrink_tmp) / (s0_tmp*0.02))
-        gamma_tmp = ((pBoost_tmp + pShrink_tmp - 2*p_tmp) / ((s0_tmp*0.01)**2))
+        delta_tmp = ((pBoost_tmp - pShrink_tmp) / (s0_tmp*0.0002))
+        gamma_tmp = ((pBoost_tmp + pShrink_tmp - 2*p_tmp) / ((s0_tmp*0.0001)**2))
 
-        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma+0.01, rf, T_tmp, dt, q) * a
+        pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma+0.0001, rf, T_tmp, dt, q) * a
         #print("Sigma Up: ", pBoost_tmp)
-        vega_tmp = ((pBoost_tmp - p_tmp) / (0.01))
+        vega_tmp = ((pBoost_tmp - p_tmp) / (0.0001))
 
         if (T_tmp - 1/365) > 0:
-            pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 1/365, dt, q) * a
+            pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 1/400, dt, q) * a
             #print("t - 1: ", pBoost_tmp)
-            theta_tmp = (pBoost_tmp - p_tmp) / (1/365)
+            theta_tmp = (pBoost_tmp - p_tmp) / (1/400)
         else:
-            pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 0.5/365, dt, q) * a
+            pBoost_tmp = opf2.uoc(s0_tmp, k_tmp, barrier_tmp, rebate_tmp, sigma, rf, T_tmp - 0.5/400, dt, q) * a
             #print("t - 1: ", pBoost_tmp)
-            theta_tmp = (pBoost_tmp - p_tmp) / (0.5/365)
+            theta_tmp = (pBoost_tmp - p_tmp) / (0.5/400)
 
     else:
         price_tmp = None

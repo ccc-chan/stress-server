@@ -77,14 +77,15 @@ def iDSearch(query):
   ratePoints = [None, om, tm, sm, nm, oy, sy, ty, fy, None]
   data = model.readData()
   data = others.setT(data,today)
+  indexSet = model.searchForIndexSet(data, inputSearch)
   #######
   #print("Read Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-  benchMark = model.getBenchMarkList(False, inputSearch, ratePoints)
+  benchMark = model.getBenchMarkList(indexSet)
   [idSetBM, price_tmpSetBM, deltaExposureSetBM, delta_tmpSetBM, gammaExposureSetBM, gamma_tmpSetBM, thetaExposureSetBM, theta_tmpSetBM, vegaExposureSetBM, vega_tmpSetBM, PVSetBM] = benchMark
   
   #######
   #print("BenchMark Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-  [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithSearch(data, inputSearch, ratePoints, s0Shock, sigmaShock)
+  [idSet, price_tmpSet, deltaExposureSet, delta_tmpSet, gammaExposureSet, gamma_tmpSet, thetaExposureSet, theta_tmpSet, vegaExposureSet, vega_tmpSet, PVSet] = model.getDataWithSearch(data, indexSet, ratePoints, s0Shock, sigmaShock)
 
   #######
   #print("getData Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
@@ -101,7 +102,7 @@ def iDSearch(query):
 
   newSumUpList = [idSetSum, PVSetSum, deltaExposureSetSum, delta_tmpSetSum, gammaExposureSetSum, gamma_tmpSetSum, thetaExposureSetSum, theta_tmpSetSum, vegaExposureSetSum, vega_tmpSetSum, price_tmpSetSum]
 
-  heatMapData = model.getHeatMapData(data, benchMark, chartType, inputSearch, ratePoints)
+  heatMapData = model.getHeatMapData(data, benchMark, chartType, indexSet, ratePoints)
   ######
   #print("Plot Complete", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
   

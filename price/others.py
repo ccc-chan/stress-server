@@ -122,7 +122,9 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
         
     if buy is not None and buy == False:
         if price_tmp is not None:
-            price_tmp = -1 * price_tmp
+            ######Warning: To be Fixed...
+            if data["类型"][indexToFind] == "VCALL" or data["类型"][indexToFind] == "VPUT":
+                price_tmp = -1 * price_tmp
         if deltaExposure is not None:
             deltaExposure = -1 * deltaExposure
         if delta_tmp is not None:
