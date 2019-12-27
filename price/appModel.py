@@ -337,18 +337,19 @@ def getDataWithSearch(data, indexSet, ratePoints, s0Shock, sigmaShock):
         if PV_tmp is not None:
             PV_tmp = round(PV_tmp * data["startingPrice"][indexToFind], 10)
 
-        if price_tmp is not None:
-            price_tmpSet.append(price_tmp)
-            deltaExposureSet.append(deltaExposure)
-            delta_tmpSet.append(delta_tmp)
-            gammaExposureSet.append(gammaExposure)
-            gamma_tmpSet.append(gamma_tmp)
-            thetaExposureSet.append(thetaExposure)
-            theta_tmpSet.append(theta_tmp)
-            vegaExposureSet.append(vegaExposure)
-            vega_tmpSet.append(vega_tmp)
-            PVSet.append(PV_tmp)
-            idSet.append(idToFind)
+        #########
+        ##price_tmp is None means compute error like T < 0
+        price_tmpSet.append(price_tmp)
+        deltaExposureSet.append(deltaExposure)
+        delta_tmpSet.append(delta_tmp)
+        gammaExposureSet.append(gammaExposure)
+        gamma_tmpSet.append(gamma_tmp)
+        thetaExposureSet.append(thetaExposure)
+        theta_tmpSet.append(theta_tmp)
+        vegaExposureSet.append(vegaExposure)
+        vega_tmpSet.append(vega_tmp)
+        PVSet.append(PV_tmp)
+        idSet.append(idToFind)
         
     return [idSet, 
         others.listFormatter(price_tmpSet, False), 
