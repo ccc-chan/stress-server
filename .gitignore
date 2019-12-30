@@ -1,1 +1,6 @@
 /price/__pycache__/*
+/stress/__pycache__/*
+/stressTest/__pycache__/*
+/__pycache__/*
+.ipynb_checkpoints
+/price/data.xls
