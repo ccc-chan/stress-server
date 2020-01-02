@@ -17,9 +17,7 @@ def setT(data, today):
     setDay = datetime.strptime(today, '%Y-%m-%d') #fixed format
     for daysDelta in (data["期末定价日"] - setDay):
         if type(daysDelta.days) != type(int(1)): #should be type.int
-            T_tmp.append(int(0))
-        elif daysDelta.days < 0:
-            T_tmp.append(int(0))
+            T_tmp.append(int(-1))
         else:
             T_tmp.append(daysDelta.days)
     data["T"] = T_tmp #it means from the chosen date to the end date, it also determines the term structure
@@ -122,7 +120,9 @@ def greeksExposure(indexToFind, data, quantity, buy, st, price_tmp, delta_tmp, g
         
     if buy is not None and buy == False:
         if price_tmp is not None:
-            price_tmp = -1 * price_tmp
+            ######Warning: To be Fixed...
+            if data["类型"][indexToFind] == "VCALL" or data["类型"][indexToFind] == "VPUT":
+                price_tmp = -1 * price_tmp
         if deltaExposure is not None:
             deltaExposure = -1 * deltaExposure
         if delta_tmp is not None:
@@ -180,14 +180,23 @@ def sumUpEachList(dataExport):
     for i in range(len(idSet)):
         if price_tmpSet[i] is not None:
             priceSum = priceSum + price_tmpSet[i]
+        if deltaExposureSet[i] is not None:
             deltaExposureSum = deltaExposureSum + deltaExposureSet[i]
+        if delta_tmpSet[i] is not None:
             deltaSum = deltaSum + delta_tmpSet[i]
+        if gammaExposureSet[i] is not None:
             gammaExposureSum = gammaExposureSum + gammaExposureSet[i]
+        if gamma_tmpSet[i] is not None:
             gammaSum = gammaSum + gamma_tmpSet[i]
+        if thetaExposureSet[i] is not None:
             thetaExposureSum = thetaExposureSum + thetaExposureSet[i]
+        if theta_tmpSet[i] is not None:
             thetaSum = thetaSum + theta_tmpSet[i]
+        if vegaExposureSet[i] is not None:
             vegaExposureSum = vegaExposureSum + vegaExposureSet[i]
+        if vega_tmpSet[i] is not None:
             vegaSum = vegaSum + vega_tmpSet[i]
+        if PVSet[i] is not None:
             PVSum = PVSum + PVSet[i]
  
     return [None, 
@@ -204,13 +213,14 @@ def sumUpEachList(dataExport):
 
 def computeCondition(s0_tmp, k_tmp, sigma, T_tmp):
     if s0_tmp is not None and k_tmp is not None and sigma is not None and T_tmp is not None:
-        if s0_tmp > 0 and k_tmp > 0 and sigma > 0 and T_tmp > 0:
+        if s0_tmp > 0 and k_tmp > 0 and sigma > 0 and T_tmp >= 0: #can be excercised on the same day
             return True
         else:
             return False
     else:
         return False
 
+##Deprecated...
 def isNormalID(idToIdentify):
     if len(idToIdentify) == 8 and idToIdentify.isdigit():
         return True
@@ -218,8 +228,8 @@ def isNormalID(idToIdentify):
         return False
 
 def outputFormatter(floatNumber, isTenThousand):
-    stringNumber = str(floatNumber)
     if floatNumber is not None:
+        stringNumber = str(floatNumber)
         if isTenThousand:
             if len(stringNumber.split(".")[0]) <= 4:
                 floatNumber = round(floatNumber, 2)
